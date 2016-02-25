@@ -9,6 +9,10 @@ require("scripts/globals/shop");
 require("scripts/globals/settings");
 require("scripts/zones/Southern_San_dOria/TextIDs");
 
+-----------------------------------
+-- onTrade Action
+-----------------------------------
+
 function onTrigger(player,npc)
 
     player:showText(npc,CARAUTIA_SHOP_DIALOG);
@@ -28,14 +32,6 @@ function onTrigger(player,npc)
 
     showShop(player, SANDORIA, stock);
 end;
-
------------------------------------
--- onTrigger Action
------------------------------------
-
-function onTrigger(player,npc)
-
-end; 
 
 -----------------------------------
 -- onEventUpdate
