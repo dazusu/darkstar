@@ -1,5 +1,5 @@
 -------------------------------------------------
---	@title		Mining 2.0
+--  @title      Mining 2.0
 -------------------------------------------------
 
 --
@@ -116,8 +116,8 @@ local dropsCollection = {
         [1320] = {0x0282}, -- 13.20% Zinc Ore
         [0840] = {0x0300}, -- 8.40% Flint Stone
         [0360] = {0x02E0}, -- 3.6% Silver Ore
-        [0170] = {0x0301}, -- 1.7% Red Rock
-        [0150] = {0x0285}, -- 1.5% Darksteel Ore
+        [0200] = {0x0301}, -- 1.7% Red Rock
+        [0200] = {0x0285}, -- 1.5% Darksteel Ore
         [0110] = {0x02E1} -- 1.1% Gold Ore
 
     },
@@ -185,7 +185,7 @@ local dropsCollection = {
 }
 
 local locations = {
-    [62] = { -- Zhayolm
+    [62] = { -- Halvung
         {681.975,-28.781,215.563},
         {772.556,-11.121,181.562},
         {775.734,-19.961,102.950},
@@ -257,24 +257,24 @@ local locations = {
         {330.931,-24.900,239.451}
     },
     [205] = { -- Ifrit's Cauldron Mining Point Locations
-        {139.0821,3.224189,-61.04087},
-        {41.82273,-0.8883741,-24.33785},
-        {-73.00857,-0.5414249,-96.45692},
-        {-144.0841,16.04767,-177.2892},
+        {139.082,3.224,-61.040},
+        {41.822,-0.888,-24.337},
+        {-73.008,-0.541,-96.456},
+        {-144.081,16.047,-177.289},
         {-190.9837,0.4465082,-183.3414},
         {-103.5138,-0.4741323,-61.05524},
-        {-98.92102,-1.524343,-16.91717},
+        {-98.921,-1.524,-16.917},
         {-109.204,17.7227,24.88388},
         {-129.5698,38.26331,83.38991},
         {-221.9931,38.79238,109.9998},
-        {-3.945425,9.675832,95.10786},
+        {-3.945,9.675,95.107},
         {47.35144,8.44986,96.10957},
         {-11.72499,6.155578,175.3738},
         {92.61575,19.22635,-5.734488},
         {95,0,25},
         {-101.8463,-0.4984876,61.31176},
         {-59.3724,-0.5520002,60.08635},
-        {27.93127,-2.754482,50.85629},
+        {27.931,-2.754,50.856},
         {69,-2,27}
     },
     [196] = { -- Gusgen Mines Mining Point Locations
@@ -284,13 +284,13 @@ local locations = {
         {-10.364,-40.028,-84.169},
         {-137.089,-40.658,150.613},
         {-64.416,-40.104,253.775},
-        {-161.3418,-24.38238,222.9929},
+        {-161.341,-24.382,222.992},
         {-100,-1,250},
         {-172.555,-0.330,303.216},
         {-171.214,-0.100,376.661},
         {50.340,-40.372,194.160},
         {101.177,-41.041,211.026},
-        {148.4918,-41.24373,21.23974},
+        {148.491,-41.24373,21.239},
         {156,-20,217},
         {-145.420,-28.425,326.760},
         {27.651,-40.074,62.101},
@@ -361,30 +361,30 @@ local rocks = {0x0301,0x0302,0x0303,0x0304,0x0305,0x0306,0x0308,0x0307};
 -------------------------------------------------
 
 function startMining(player, zone, npc, trade, cutsceneId)
-	-- Check that the user has a pickaxe, and has traded a single one.
-	if (trade:hasItemQty(605,1) and trade:getItemCount() == 1) then
-		-- Has the pickaxe broken? What item was recieved? Is the user's inventory full?
-		local broken = calcBroken(player,trade);
-		local item = getMiningItem(player,zone);
-		local full = (player:getFreeSlotsCount() == 0 and 1 or 0);
-		local hitCount = npc:getLocalVar("HIT_COUNT");
-		--printf("Mining: full: %s, item: %s, hitCount: %s, id: %s", full, item, hitCount, npc);
-		hitCount = hitCount - 1;
-		if (hitCount == -1) then -- hits will only ever be -1 after a server reset.
-			hitCount = math.random(2,4);
-		end;
-		if (hitCount == 0) then
-			moveMiningPoint(player,npc,zone);
-		end;
-		--printf("Mining: setting hitcount to %s, id: %s",hitCount,npc);
-		-- Start the mining cutscene on the player.
-		player:startEvent(cutsceneId,item,broken,full);
-		if (item ~= 0 and full == 0) then
-			-- Update the hit count on the mining point.
-			npc:setLocalVar("HIT_COUNT",hitCount);
-			player:addItem(item);
-		end;
-	end;
+    -- Check that the user has a pickaxe, and has traded a single one.
+    if (trade:hasItemQty(605,1) and trade:getItemCount() == 1) then
+        -- Has the pickaxe broken? What item was recieved? Is the user's inventory full?
+        local broken = calcBroken(player,trade);
+        local item = getMiningItem(player,zone);
+        local full = (player:getFreeSlotsCount() == 0 and 1 or 0);
+        local hitCount = npc:getLocalVar("HIT_COUNT");
+        --printf("Mining: full: %s, item: %s, hitCount: %s, id: %s", full, item, hitCount, npc);
+        hitCount = hitCount - 1;
+        if (hitCount == -1) then -- hits will only ever be -1 after a server reset.
+            hitCount = math.random(2,4);
+        end;
+        if (hitCount == 0) then
+            moveMiningPoint(player,npc,zone);
+        end;
+        --printf("Mining: setting hitcount to %s, id: %s",hitCount,npc);
+        -- Start the mining cutscene on the player.
+        player:startEvent(cutsceneId,item,broken,full);
+        if (item ~= 0 and full == 0) then
+            -- Update the hit count on the mining point.
+            npc:setLocalVar("HIT_COUNT",hitCount);
+            player:addItem(item);
+        end;
+    end;
 
 end;
 
@@ -393,13 +393,13 @@ end;
 -------------------------------------------------
 
 function calcBroken(player,trade)
-	local broken = 0;
-	-- 15% chance to break the pickaxe.
-	if (math.random(0,100) < 15) then
-		broken = 1;
-		player:tradeComplete();
-	end;
-	return broken;
+    local broken = 0;
+    -- 10% chance to break the pickaxe.
+    if (math.random(0,100) < 10) then
+        broken = 1;
+        player:tradeComplete();
+    end;
+    return broken;
 end;
 
 -------------------------------------------------
@@ -407,43 +407,43 @@ end;
 -------------------------------------------------
 
 function getMiningItem(player,zone) 
-	-- declare the winning item!
-	local item = 0;
+    -- declare the winning item!
+    local item = 0;
 
-	-- there's the distinct possibility (25% chance) that you'll get nothing.
-	if (math.random(1,100) > 75) then
-		return item;
-	end;
+    -- there's the distinct possibility (15% chance) that you'll get nothing.
+    if (math.random(1,100) < 15) then
+        return item;
+    end;
 
-	-- Get the drop array from the master drops array.
-	local drops = dropsCollection[zone];
+    -- Get the drop array from the master drops array.
+    local drops = dropsCollection[zone];
 
-	-- Get the total of all drop weights
-	local total = 0;
-	for rate,item in pairs(drops) do
-		total = total+rate;
-	end;
+    -- Get the total of all drop weights
+    local total = 0;
+    for rate,item in pairs(drops) do
+        total = total+rate;
+    end;
 
-	-- Get a random number that will determine the drop from the array.
-	local tickerStop = math.random(1,total);
+    -- Get a random number that will determine the drop from the array.
+    local tickerStop = math.random(1,total);
 
-	local countPosition = 0;
-	-- find out the winning item from the drops array.
-	for rate, drop in pairs(drops) do
-		countPosition = countPosition+rate;
-		if (countPosition >= tickerStop) then
-			item = drop[1];
-			break;
-		end;
-	end;
+    local countPosition = 0;
+    -- find out the winning item from the drops array.
+    for rate, drop in pairs(drops) do
+        countPosition = countPosition+rate;
+        if (countPosition >= tickerStop) then
+            item = drop[1];
+            break;
+        end;
+    end;
 
-	-- if the item was a coloured rock, turn it into the appropriate element
-	local day = VanadielDayElement();
-	if (item == 769) then
-		item = rocks[day+1];
-	end;
+    -- if the item was a coloured rock, turn it into the appropriate element
+    local day = VanadielDayElement();
+    if (item == 769) then
+        item = rocks[day+1];
+    end;
 
-	return item;
+    return item;
 end;
 
 -------------------------------------------------
@@ -451,33 +451,42 @@ end;
 -------------------------------------------------
 
 function moveMiningPoint(player,npc,zone)
-	-- load positions for this zone
-	local positions = locations[zone];
-	-- choose a random index within the positions table
-	local index = math.random(1,table.getn(positions));
+    -- load positions for this zone
+    local positions = locations[zone];
+    -- choose a random index within the positions table
+    local index = math.random(1,#positions);
 
-	-- ensure some positions were actually loaded for this zone
-	if (positions ~= nil) then
-		while (isIndexUsed(zone,index)) do
-			--printf("Mining: Point at %s is in use, removing... (remaining: %s)",index,table.getn(positions)-1);
-			table.remove(positions,index);
-			index = math.random(1,table.getn(positions));
-		end;
-	else
-		-- Something went wrong. No positions were found for this zone. Hide the mining point for 500 seconds instead.
-		npc:setLocalVar("HIT_COUNT",math.random(3,5));
-		npc:setLocalVar("INDEX",0);
-		npc:hideNPC(500);
-	end;
+    -- ensure some positions were actually loaded for this zone
+    if (positions ~= nil) then
+        while (isIndexUsed(zone,index)) do
+            --printf("Mining: Point at %s is in use, removing... (remaining: %s)",index,table.getn(positions)-1);
+            table.remove(positions,index);
+            index = math.random(1,#positions);
+        end;
+    else
+        -- Something went wrong. No positions were found for this zone. Hide the mining point for 500 seconds instead.
+        npc:setLocalVar("HIT_COUNT",math.random(3,5));
+        npc:setLocalVar("INDEX",0);
+        npc:hideNPC(500);
+        --printf("Hiding right here...");
+    end;
 
-	--printf("Mining: Found a new point, moving to index: %s",index);
-	local pos = positions[index];
-	npc:setLocalVar("HIT_COUNT",math.random(3,5));
-	npc:setLocalVar("INDEX",index);
-	npc:hideNPC(120);
-	npc:wait(2000); -- hax.
-	npc:setPos(pos[1], pos[2], pos[3], 0, zone, true);
+    --printf("Mining: Found a new point, moving to index: %s",index);
+    local pos = positions[index];
+    npc:setLocalVar("HIT_COUNT",math.random(3,5));
+    npc:setLocalVar("INDEX",index);
+    npc:hideNPC(120);
+    npc:queue(2000,doMove(npc, pos[1], pos[2], pos[3]));
+end;
 
+-------------------------------------------------
+-- Perform node move after queue timer depletes.
+-------------------------------------------------
+
+function doMove(npc,x,y,z,zone)
+    return function(entity)
+        entity:setPos(x, y, z, 0);
+    end;
 end;
 
 -------------------------------------------------
@@ -485,13 +494,13 @@ end;
 -------------------------------------------------
 
 function isIndexUsed(zone,index)
-	local points = miningPoints[zone];
-	local used = false;
-	for i,point in ipairs(points) do
-		local n = GetNPCByID(point);
-		if (n:getLocalVar("INDEX") == index and index ~= 0) then
-			used = true;
-		end;
-	end;
-	return used;
+    local points = miningPoints[zone];
+    local used = false;
+    for i,point in ipairs(points) do
+        local n = GetNPCByID(point);
+        if (n:getLocalVar("INDEX") == index and index ~= 0) then
+            used = true;
+        end;
+    end;
+    return used;
 end;
