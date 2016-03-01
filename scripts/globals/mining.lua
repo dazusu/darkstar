@@ -394,8 +394,8 @@ end;
 
 function calcBroken(player,trade)
     local broken = 0;
-    -- 10% chance to break the pickaxe.
-    if (math.random(0,100) < 10) then
+    -- 25% chance to break the pickaxe.
+    if (math.random(0,100) < 25) then
         broken = 1;
         player:tradeComplete();
     end;
@@ -411,7 +411,7 @@ function getMiningItem(player,zone)
     local item = 0;
 
     -- there's the distinct possibility (15% chance) that you'll get nothing.
-    if (math.random(1,100) < 15) then
+    if (math.random(1,100) < 25) then
         return item;
     end;
 
@@ -453,15 +453,21 @@ end;
 function moveMiningPoint(player,npc,zone)
     -- load positions for this zone
     local positions = locations[zone];
+    local indexes = {};
+
+    for c = 1, #positions, 1 do 
+    	table.insert(indexes, c);
+    end
+
     -- choose a random index within the positions table
-    local index = math.random(1,#positions);
+    local index = math.random(1,#indexes);
 
     -- ensure some positions were actually loaded for this zone
     if (positions ~= nil) then
-        while (isIndexUsed(zone,index)) do
-            --printf("Mining: Point at %s is in use, removing... (remaining: %s)",index,table.getn(positions)-1);
-            table.remove(positions,index);
-            index = math.random(1,#positions);
+        while (isIndexUsed(zone,indexes[index])) do
+            printf("Mining: Point at %s (actual value: %s) is in use, removing... (remaining: %s)",index,indexes[index],table.getn(indexes)-1);
+            table.remove(indexes,index);
+            index = math.random(1,#indexes);
         end;
     else
         -- Something went wrong. No positions were found for this zone. Hide the mining point for 500 seconds instead.
@@ -471,7 +477,7 @@ function moveMiningPoint(player,npc,zone)
         --printf("Hiding right here...");
     end;
 
-    --printf("Mining: Found a new point, moving to index: %s",index);
+    printf("Mining: Found a new point, moving to index: %s",index);
     local pos = positions[index];
     npc:setLocalVar("HIT_COUNT",math.random(3,5));
     npc:setLocalVar("INDEX",index);
@@ -494,11 +500,11 @@ end;
 -------------------------------------------------
 
 function isIndexUsed(zone,index)
-    local points = miningPoints[zone];
+	local points = miningPoints[zone];
     local used = false;
     for i,point in ipairs(points) do
         local n = GetNPCByID(point);
-        if (n:getLocalVar("INDEX") == index and index ~= 0) then
+        if (n:getLocalVar("INDEX") ~= nil and n:getLocalVar("INDEX") == index and index ~= 0) then
             used = true;
         end;
     end;
