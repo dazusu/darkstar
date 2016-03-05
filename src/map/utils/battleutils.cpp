@@ -446,6 +446,11 @@ namespace battleutils
                               // Yagudo has it's own version
                               id = 865;
                           }
+                          else if(familyId == 3)
+                          {
+                              // Aern
+                              id = 1389;
+                          }
                           else if(familyId == 169 || familyId == 358)
                           {
                               // Kindred has it's own version
@@ -4594,8 +4599,8 @@ namespace battleutils
 
     bool DrawIn(CBattleEntity* PEntity, CMobEntity* PMob, float offset)
     {
-        position_t* pos = &PMob->loc.p;
-        position_t nearEntity = nearPosition(*pos, offset, M_PI);
+        position_t& pos = PMob->loc.p;
+        position_t nearEntity = nearPosition(pos, offset, M_PI);
 
         // validate the drawin position before continuing
         if (!PMob->PAI->PathFind->ValidPosition(pos))
