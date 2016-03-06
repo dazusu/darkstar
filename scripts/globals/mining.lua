@@ -107,8 +107,8 @@ local extracted = {
         [0840] = {0x0300}, -- 8.40% Flint Stone
         [0360] = {0x02E0}, -- 3.6% Silver Ore
         [0200] = {0x0301}, -- 1.7% Red Rock
-        [0200] = {0x0285}, -- 1.5% Darksteel Ore
-        [0110] = {0x02E1} -- 1.1% Gold Ore
+        [0300] = {0x0285}, -- 1.5% Darksteel Ore
+        [0210] = {0x02E1} -- 1.1% Gold Ore
 
     },
     [143] = { -- Palborough Mines
@@ -430,15 +430,13 @@ function getMiningItem(player,zone)
 end;
 
 -------------------------------------------------
--- Similar implementation of npcUtil.pickNewPosition
--- that supports position structure of tables in this file.
+-- Moves mining point.
 -------------------------------------------------
 
 function moveMiningPoint(player,npc,zone)
 
-    local positions = coordinates[zone];
+    local positions = shuffleTable(coordinates[zone]);
     local points = miningpoints[zone];
-    local usedIndexes = {};
     local newIndex = -1;
 
     if (positions ~= nil) then
@@ -449,38 +447,44 @@ function moveMiningPoint(player,npc,zone)
                 if (math.floor(v[1]) == math.floor(currentnpc:getXPos()) and
                     math.floor(v[2]) == math.floor(currentnpc:getYPos()) and
                     math.floor(v[3]) == math.floor(currentnpc:getZPos())) then
-                        table.insert(usedIndexes,c);
-                        --printf("The mining point (%s) is using index: %s",p,c)
+                        table.remove(positions,c);
                 end
             end
         end
 
-        -- Find a new position to use if we have more total positions than used positions.
-        local foundIndex = false
-        repeat
-            newIndex = math.random(1,#positions);
-            foundIndex = true
-            --printf("Attempting to use %s:",newIndex);
-            for d = 1, #usedIndexes do
-                if (newIndex == usedIndexes[d]) then
-                    --printf("%s is already in use by...: ",newIndex,d);
-                    foundIndex = false
-                end
-            end
-        until (foundIndex == true)
-        --printf("Successfully found index %s to use...",foundIndex);
-    else
+        if (#positions > 0) then
+            newIndex = math.random(1,#positions)
+        end
+    end
+
+    if (newIndex == -1) then
         npc:setLocalVar("HIT_COUNT",math.random(4,6));
         npc:hideNPC(300);
         --printf("Couldn't find this mining points current index! Hiding for 5 minutes");
+    else
+        local position = positions[newIndex];
+        npc:setLocalVar("HIT_COUNT",math.random(4,6));
+        npc:hideNPC(120);
+        npc:queue(3000,doMove(npc, position[1], position[2], position[3]));
+    end
+end;
+
+-------------------------------------------------
+-- Shuffles a tables elements and returns a copy.
+-------------------------------------------------
+
+function shuffleTable(tab)
+    local copy = {}
+    for k, v in pairs(tab) do
+        copy[k] = v
     end
 
-    local position = positions[newIndex];
-    npc:setLocalVar("HIT_COUNT",math.random(4,6));
-    npc:hideNPC(120);
-    npc:queue(3000,doMove(npc, position[1], position[2], position[3]));
-
-end;
+    local res = {}
+    while next(copy) do
+        res[#res + 1] = table.remove(copy, math.random(#copy))
+    end
+    return res
+end
 
 -------------------------------------------------
 -- Perform node move after queue timer depletes.
