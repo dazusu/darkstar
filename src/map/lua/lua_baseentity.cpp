@@ -10339,6 +10339,7 @@ int32 CLuaBaseEntity::setEquipBlock(lua_State* L)
     {
         auto PChar {static_cast<CCharEntity*>(m_PBaseEntity)};
         PChar->m_EquipBlock = lua_tointeger(L, 1);
+        PChar->pushPacket(new CCharJobsPacket(PChar));
     }
     return 0;
 }
@@ -10351,6 +10352,7 @@ int32 CLuaBaseEntity::setStatDebilitation(lua_State* L)
     {
         auto PChar {static_cast<CCharEntity*>(m_PBaseEntity)};
         PChar->m_StatsDebilitation = lua_tointeger(L, 1);
+        PChar->pushPacket(new CCharJobsPacket(PChar));
     }
     return 0;
 }
@@ -10365,6 +10367,60 @@ int32 CLuaBaseEntity::unequipItem(lua_State* L)
         charutils::UnequipItem(PChar, lua_tointeger(L, 1));
     }
     return 0;
+}
+
+int32 CLuaBaseEntity::recalculateStats(lua_State* L)
+{
+    DSP_DEBUG_BREAK_IF(m_PBaseEntity == nullptr);
+
+    if (m_PBaseEntity->objtype == TYPE_PC)
+    {
+        auto PChar {static_cast<CCharEntity*>(m_PBaseEntity)};
+        charutils::BuildingCharSkillsTable(PChar);
+        charutils::CalculateStats(PChar);
+        charutils::CheckValidEquipment(PChar);
+        charutils::BuildingCharAbilityTable(PChar);
+        charutils::BuildingCharTraitsTable(PChar);
+
+        PChar->UpdateHealth();
+
+        PChar->pushPacket(new CCharJobsPacket(PChar));
+        PChar->pushPacket(new CCharStatsPacket(PChar));
+        PChar->pushPacket(new CCharSkillsPacket(PChar));
+        PChar->pushPacket(new CCharRecastPacket(PChar));
+        PChar->pushPacket(new CCharAbilitiesPacket(PChar));
+        PChar->pushPacket(new CCharUpdatePacket(PChar));
+        PChar->pushPacket(new CMenuMeritPacket(PChar));
+        PChar->pushPacket(new CCharSyncPacket(PChar));
+    }
+    return 0;
+}
+
+int32 CLuaBaseEntity::checkImbuedItems(lua_State* L)
+{
+    DSP_DEBUG_BREAK_IF(m_PBaseEntity == nullptr);
+    DSP_DEBUG_BREAK_IF(m_PBaseEntity->objtype != TYPE_PC);
+
+    auto PChar {static_cast<CCharEntity*>(m_PBaseEntity)};
+
+    for (uint8 LocID = 0; LocID < MAX_CONTAINER_ID; ++LocID)
+    {
+        bool found = false;
+        PChar->getStorage(LocID)->ForEachItem([&found](CItem* PItem)
+        {
+            if (PItem->getID() >= 5365 && PItem->getID() <= 5384)
+            {
+                found = true;
+            }
+        });
+        if (found)
+        {
+            lua_pushboolean(L, true);
+            return 1;
+        }
+    }
+    lua_pushboolean(L, false);
+    return 1;
 }
 
 //==========================================================//
@@ -10822,5 +10878,7 @@ Lunar<CLuaBaseEntity>::Register_t CLuaBaseEntity::methods[] =
     LUNAR_DECLARE_METHOD(CLuaBaseEntity,setEquipBlock),
     LUNAR_DECLARE_METHOD(CLuaBaseEntity,setStatDebilitation),
     LUNAR_DECLARE_METHOD(CLuaBaseEntity,unequipItem),
+    LUNAR_DECLARE_METHOD(CLuaBaseEntity,recalculateStats),
+    LUNAR_DECLARE_METHOD(CLuaBaseEntity,checkImbuedItems),
     {nullptr,nullptr}
 };
