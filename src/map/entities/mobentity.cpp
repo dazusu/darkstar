@@ -848,10 +848,10 @@ void CMobEntity::DropItems()
                                 PChar->PTreasurePool->AddItem(1127, this);
                                 break;
                             case 2:
-                                PChar->PTreasurePool->AddItem(2955, this);
+                                //PChar->PTreasurePool->AddItem(2955, this);
                                 break;
                             case 3:
-                                PChar->PTreasurePool->AddItem(2956, this);
+                                //PChar->PTreasurePool->AddItem(2956, this);
                                 break;
                         }
                     }
@@ -866,7 +866,7 @@ void CMobEntity::DropItems()
                                 PChar->PTreasurePool->AddItem(1127, this);
                                 break;
                             case 2:
-                                PChar->PTreasurePool->AddItem(2955, this);
+                                //PChar->PTreasurePool->AddItem(2955, this);
                                 break;
                         }
                     }
