@@ -27,9 +27,6 @@ This file is part of DarkStar-server source code.
 #include "controller.h"
 #include "../../entities/mobentity.h"
 
-// mobs will deaggro if player is out of range for this long
-#define MOB_DEAGGRO_TIME 25000
-
 // time a mob is neutral after disengaging
 #define MOB_NEUTRAL_TIME 10000
 
@@ -40,6 +37,7 @@ public:
 
     virtual void Tick(time_point tick) override;
     virtual void Disengage() override;
+    virtual bool Engage(uint16 targid) override;
     virtual void Despawn() override;
     virtual bool MobSkill(uint16 targid, uint16 wsid);
     virtual void Ability(uint16 targid, uint16 abilityid) override {}
@@ -51,8 +49,12 @@ public:
 
 protected:
     virtual bool TryDeaggro();
+
+
     virtual void TryLink();
     bool CanDetectTarget(CBattleEntity* PTarget, bool forceSight = false);
+    bool CanPursueTarget(CBattleEntity* PTarget);
+    bool CheckHide(CBattleEntity* PTarget);
     bool CanSeePoint(position_t pos);
     bool CanCastSpells();
     void CastSpell(uint16 spellid);
@@ -65,6 +67,8 @@ protected:
     void Wait(duration _duration);
     void FollowRoamPath();
     bool CanMoveForward(float currentDistance);
+    bool IsSpecialSkillReady(float currentDistance);
+    bool IsSpellReady(float currentDistance);
 
     CBattleEntity* PTarget {nullptr};
 private:

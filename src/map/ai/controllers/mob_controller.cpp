@@ -73,7 +73,8 @@ bool CMobController::TryDeaggro()
         PTarget->animation == ANIMATION_CHOCOBO ||
         PTarget->loc.zone->GetID() != PMob->loc.zone->GetID() ||
         PMob->StatusEffectContainer->GetConfrontationEffect() != PTarget->StatusEffectContainer->GetConfrontationEffect() ||
-        PMob->allegiance == PTarget->allegiance)
+        PMob->allegiance == PTarget->allegiance ||
+        CheckHide(PTarget))
     {
         PMob->PEnmityContainer->Clear(PTarget->id);
         PTarget = PMob->PEnmityContainer->GetHighestEnmity();
@@ -81,35 +82,35 @@ bool CMobController::TryDeaggro()
         return TryDeaggro();
     }
 
-    bool tryDetectDeaggro = false;
-    bool tryTimeDeaggro = true;
+    // I will now deaggro if I cannot detect my target
+    if (!CanPursueTarget(PTarget) && PMob->CanDeaggro() && !CanDetectTarget(PTarget))
+    {
+        return true;
+    }
 
-    if (PMob->m_Aggro & AGGRO_SCENT)
+    return false;
+}
+
+bool CMobController::CanPursueTarget(CBattleEntity* PTarget)
+{
+    if (PMob->m_Detects & DETECT_SCENT)
     {
         // if mob is in water it will instant deaggro if target cannot be detected
-        if (PMob->PAI->PathFind->InWater() || PTarget->StatusEffectContainer->HasStatusEffect(EFFECT_DEODORIZE))
+        if (!PMob->PAI->PathFind->InWater() && !PTarget->StatusEffectContainer->HasStatusEffect(EFFECT_DEODORIZE))
         {
-            tryDetectDeaggro = true;
+            // certain weather / deodorize will turn on time deaggro
+            return PMob->m_disableScent;
         }
-
-        // certain weather / deodorize will turn on time deaggro
-        tryTimeDeaggro = PMob->m_disableScent;
     }
+    return false;
+}
 
-    //Hide allows you to lose aggro on certain types of enemies.
-    //Generally works on monsters that don't track by scent, regardless of detection method.
-    //Can work on monsters that track by scent if the proper conditions are met (double rain weather, crossing over water, etc.)
-    if (tryTimeDeaggro && PTarget->StatusEffectContainer->HasStatusEffect(EFFECT_HIDE))
+bool CMobController::CheckHide(CBattleEntity* PTarget)
+{
+    if (PTarget->GetMJob() == JOB_THF && PTarget->StatusEffectContainer->HasStatusEffect(EFFECT_HIDE))
     {
-        return true;
+        return !CanPursueTarget(PTarget) && !PMob->m_TrueDetection;
     }
-
-    // I will now deaggro if I cannot detect my target
-    if (tryDetectDeaggro && !CanDetectTarget(PTarget))
-    {
-        return true;
-    }
-
     return false;
 }
 
@@ -184,32 +185,30 @@ bool CMobController::CanDetectTarget(CBattleEntity* PTarget, bool forceSight)
         return false;
     }
 
-    uint16 aggro = PMob->m_Aggro;
-    float currentDistance = distance(PTarget->loc.p, PMob->loc.p) + PTarget->getMod(MOD_STEALTH);
+    auto detects = PMob->m_Detects;
+    auto currentDistance = distance(PTarget->loc.p, PMob->loc.p) + PTarget->getMod(MOD_STEALTH);
 
-    bool detectSight = (aggro & AGGRO_DETECT_SIGHT) || forceSight;
+    bool detectSight = (detects & DETECT_SIGHT) || forceSight;
+    bool hasInvisible = false;
+    bool hasSneak = false;
 
-    if (detectSight && !PTarget->StatusEffectContainer->HasStatusEffectByFlag(EFFECTFLAG_INVISIBLE) && currentDistance < PMob->getMobMod(MOBMOD_SIGHT_RANGE) && isFaceing(PMob->loc.p, PTarget->loc.p, 40))
+    if (!PMob->m_TrueDetection)
+    {
+        hasInvisible = PTarget->StatusEffectContainer->HasStatusEffectByFlag(EFFECTFLAG_INVISIBLE);
+        hasSneak = PTarget->StatusEffectContainer->HasStatusEffect(EFFECT_SNEAK);
+    }
+
+    if (detectSight && !hasInvisible && currentDistance < PMob->getMobMod(MOBMOD_SIGHT_RANGE) && isFaceing(PMob->loc.p, PTarget->loc.p, 40))
     {
         return CanSeePoint(PTarget->loc.p);
     }
 
-    if ((aggro & AGGRO_DETECT_TRUESIGHT) && currentDistance < PMob->getMobMod(MOBMOD_SIGHT_RANGE) && isFaceing(PMob->loc.p, PTarget->loc.p, 40))
-    {
-        return CanSeePoint(PTarget->loc.p);
-    }
-
-    if ((aggro & AGGRO_DETECT_TRUEHEARING) && currentDistance < PMob->getMobMod(MOBMOD_SOUND_RANGE))
-    {
-        return CanSeePoint(PTarget->loc.p);
-    }
-
-    if ((PMob->m_Behaviour & BEHAVIOUR_AGGRO_AMBUSH) && currentDistance < 3 && !PTarget->StatusEffectContainer->HasStatusEffect(EFFECT_SNEAK))
+    if ((PMob->m_Behaviour & BEHAVIOUR_AGGRO_AMBUSH) && currentDistance < 3 && !hasSneak)
     {
         return true;
     }
 
-    if ((aggro & AGGRO_DETECT_HEARING) && currentDistance < PMob->getMobMod(MOBMOD_SOUND_RANGE) && !PTarget->StatusEffectContainer->HasStatusEffect(EFFECT_SNEAK))
+    if ((detects & DETECT_HEARING) && currentDistance < PMob->getMobMod(MOBMOD_SOUND_RANGE) && !hasSneak)
     {
         return CanSeePoint(PTarget->loc.p);
     }
@@ -220,23 +219,23 @@ bool CMobController::CanDetectTarget(CBattleEntity* PTarget, bool forceSight)
         return false;
     }
 
-    if ((aggro & AGGRO_DETECT_LOWHP) && PTarget->GetHPP() < 75)
+    if ((detects & DETECT_LOWHP) && PTarget->GetHPP() < 75)
     {
         return CanSeePoint(PTarget->loc.p);
     }
 
-    if ((aggro & AGGRO_DETECT_MAGIC) && PTarget->PAI->IsCurrentState<CMagicState>() &&
+    if ((detects & DETECT_MAGIC) && PTarget->PAI->IsCurrentState<CMagicState>() &&
         static_cast<CMagicState*>(PTarget->PAI->GetCurrentState())->GetSpell()->hasMPCost())
     {
         return CanSeePoint(PTarget->loc.p);
     }
 
-    if ((aggro & AGGRO_DETECT_WEAPONSKILL) && PTarget->PAI->IsCurrentState<CWeaponSkillState>())
+    if ((detects & DETECT_WEAPONSKILL) && PTarget->PAI->IsCurrentState<CWeaponSkillState>())
     {
         return CanSeePoint(PTarget->loc.p);
     }
 
-    if ((aggro & AGGRO_DETECT_JOBABILITY) && PTarget->PAI->IsCurrentState<CAbilityState>())
+    if ((detects & DETECT_JOBABILITY) && PTarget->PAI->IsCurrentState<CAbilityState>())
     {
         return CanSeePoint(PTarget->loc.p);
     }
@@ -361,7 +360,7 @@ bool CMobController::TryCastSpell()
     }
 
     int chosenSpellId = -1;
-    m_LastMagicTime = m_Tick;
+    m_LastMagicTime = m_Tick - std::chrono::milliseconds(dsprand::GetRandomNumber(PMob->getBigMobMod(MOBMOD_MAGIC_COOL) / 2));
 
     if (PMob->m_HasSpellScript)
     {
@@ -497,14 +496,15 @@ void CMobController::DoCombatTick(time_point tick)
     {
         PMob->PAI->PathFind->LookAt(PTarget->loc.p);
     }
+
     luautils::OnMobFight(PMob, PTarget);
+
     // Try to spellcast (this is done first so things like Chainspell spam is prioritised over TP moves etc.
-    if (PMob->getMobMod(MOBMOD_SPECIAL_SKILL) != 0 && !PMob->StatusEffectContainer->HasStatusEffect(EFFECT_CHAINSPELL) &&
-        (m_Tick >= m_LastSpecialTime + std::chrono::milliseconds(PMob->getBigMobMod(MOBMOD_SPECIAL_COOL))) && TrySpecialSkill())
+    if (IsSpecialSkillReady(currentDistance) && TrySpecialSkill())
     {
         return;
     }
-    else if ((m_Tick >= m_LastMagicTime + std::chrono::milliseconds(PMob->getBigMobMod(MOBMOD_MAGIC_COOL))) && TryCastSpell())
+    else if (IsSpellReady(currentDistance) && TryCastSpell())
     {
         return;
     }
@@ -844,7 +844,6 @@ void CMobController::Disengage()
     // this will let me decide to walk home or despawn
     m_LastActionTime = m_Tick - std::chrono::milliseconds(PMob->getBigMobMod(MOBMOD_ROAM_COOL) + MOB_NEUTRAL_TIME);
     PMob->m_neutral = true;
-    //m_checkDespawn = true;
     m_NeutralTime = m_Tick;
 
     PMob->PAI->PathFind->Clear();
@@ -863,7 +862,26 @@ void CMobController::Disengage()
     CController::Disengage();
 }
 
+bool CMobController::Engage(uint16 targid)
+{
+    auto ret = CController::Engage(targid);
+    if (ret)
+    {
+        m_firstSpell = true;
 
+        // Don't cast magic or use special ability right away
+        if(PMob->getBigMobMod(MOBMOD_MAGIC_DELAY) != 0)
+        {
+            m_LastMagicTime = m_Tick - std::chrono::milliseconds(PMob->getBigMobMod(MOBMOD_MAGIC_COOL) + dsprand::GetRandomNumber(PMob->getBigMobMod(MOBMOD_MAGIC_DELAY)));
+        }
+
+        if(PMob->getBigMobMod(MOBMOD_SPECIAL_DELAY) != 0)
+        {
+            m_LastSpecialTime = m_Tick - std::chrono::milliseconds(PMob->getBigMobMod(MOBMOD_SPECIAL_COOL) + dsprand::GetRandomNumber(PMob->getBigMobMod(MOBMOD_SPECIAL_DELAY)));
+        }
+    }
+    return ret;
+}
 
 bool CMobController::CanAggroTarget(CBattleEntity* PTarget)
 {
@@ -910,4 +928,39 @@ bool CMobController::CanMoveForward(float currentDistance)
     }
 
     return true;
+}
+
+bool CMobController::IsSpecialSkillReady(float currentDistance)
+{
+
+    if (PMob->getMobMod(MOBMOD_SPECIAL_SKILL) == 0) return false;
+
+    if (PMob->StatusEffectContainer->HasStatusEffect(EFFECT_CHAINSPELL)) return false;
+
+    int32 bonusTime = 0;
+    if (currentDistance > 5)
+    {
+        // Mobs use ranged attacks quicker when standing back
+        bonusTime = PMob->getBigMobMod(MOBMOD_STANDBACK_COOL);
+    }
+
+    if(m_Tick >= m_LastSpecialTime + std::chrono::milliseconds(PMob->getBigMobMod(MOBMOD_SPECIAL_COOL) - bonusTime))
+    {
+        return true;
+    }
+
+    return false;
+}
+
+bool CMobController::IsSpellReady(float currentDistance)
+{
+
+    int32 bonusTime = 0;
+    if (currentDistance > 5)
+    {
+        // Mobs use ranged attacks quicker when standing back
+        bonusTime = PMob->getBigMobMod(MOBMOD_STANDBACK_COOL);
+    }
+
+    return (m_Tick >= m_LastMagicTime + std::chrono::milliseconds(PMob->getBigMobMod(MOBMOD_MAGIC_COOL) - bonusTime));
 }

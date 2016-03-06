@@ -553,8 +553,7 @@ public:
     int32 reloadParty(lua_State* L);
     int32 getModelId(lua_State* L);
     int32 setModelId(lua_State* L);
-    int32 setAggroFlag(lua_State* L);
-    int32 unsetAggroFlag(lua_State* L);
+    int32 setTrueDetection(lua_State* L);
     int32 instantiateMob(lua_State* L);
 
     int32 getActiveManeuvers(lua_State*);
@@ -582,6 +581,10 @@ public:
 
     int32 removeAmmo(lua_State* L);
     int32 takeWeaponskillDamage(lua_State* L);
+
+    int32 setEquipBlock(lua_State* L);
+    int32 setStatDebilitation(lua_State* L);
+    int32 unequipItem(lua_State* L);
 };
 
 #endif

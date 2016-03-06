@@ -156,6 +156,7 @@ CCharEntity::CCharEntity()
 
     m_EquipFlag = 0;
     m_EquipBlock = 0;
+    m_StatsDebilitation = 0;
     m_EquipSwap = false;
 
     MeritMode = false;
@@ -498,22 +499,26 @@ bool CCharEntity::ValidTarget(CBattleEntity* PInitiator, uint16 targetFlags)
     {
         return false;
     }
+    if (isDead())
+    {
+        if (targetFlags & TARGET_PLAYER_DEAD)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
     if (CBattleEntity::ValidTarget(PInitiator, targetFlags))
     {
         return true;
     }
 
-    if (targetFlags & TARGET_PLAYER)
-    {
-        return true;
-    }
-    if ((targetFlags & TARGET_PLAYER_PARTY) &&
+    if (((targetFlags & TARGET_PLAYER_PARTY) || ((targetFlags & TARGET_PLAYER_PARTY_PIANISSIMO) &&
+        PInitiator->StatusEffectContainer->HasStatusEffect(EFFECT_PIANISSIMO))) &&
         ((PParty && PInitiator->PParty == PParty) ||
         PInitiator->PMaster && PInitiator->PMaster->PParty == PParty))
-    {
-        return true;
-    }
-    if ((targetFlags & TARGET_PLAYER_DEAD) && isDead())
     {
         return true;
     }
