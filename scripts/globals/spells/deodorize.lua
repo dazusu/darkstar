@@ -18,7 +18,7 @@ end;
 function onSpellCast(caster,target,spell)
     if (target:hasStatusEffect(EFFECT_DEODORIZE) == false) then
 
-        local duration = math.random(420, 540);
+        local duration = math.random(45, 160);
 
         if (target:getMainLvl() < 15) then
             duration = duration * target:getMainLvl() / 15; -- level adjustment

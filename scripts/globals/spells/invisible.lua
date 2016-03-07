@@ -19,10 +19,14 @@ function onSpellCast(caster,target,spell)
     if (target:hasStatusEffect(EFFECT_INVISIBLE) == false) then
 
         -- last 7-9 minutes
-        local duration = math.random(420, 540);
+        local duration = math.random(45, 160);
 
         if (target:getMainLvl() < 25) then
             duration = duration * target:getMainLvl() / 25; -- level adjustment
+        end
+
+        if (durcation < 30) then
+            duration = 30;
         end
 
         if (caster:hasStatusEffect(EFFECT_COMPOSURE) == true and caster:getID() == target:getID()) then

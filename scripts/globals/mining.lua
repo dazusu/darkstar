@@ -1,22 +1,22 @@
--------------------------------------------------
---  @title      Mining 2.0
--------------------------------------------------
+------------------------------------------------------------------------------------------
+--  Mining 2.0
+--  Note: When implementing new zones, ensure there are more mining point locations
+--  than there are mining points for the zone.
+------------------------------------------------------------------------------------------
 
+require("scripts/globals/settings");
+
+-- Note: All drops are weights, these are /not/ percentages.
+-- To add drops for new zones:
 --
--- Note: All drops are ratios, these are /not/ percentages.
--- Examples:
--- If you have three items, Pebble, Zinc and Iron and you assign weights as follows:
--- Pebble=500, Zinc=500, Iron=1000
--- Pebbles and Zinc will drop 25% of the time, and Iron will drop 50% of the time.
--- Pebble=100, Zinc=100, Iron=200
--- Pebbles and Zinc will drop 25% of the time, and Iron will drop 50% of the time.
--- Pebbles=100, Zinc=100, Iron=100
--- Pebbles, Zinc, and Iron will drop 33.3% of the time.
-
-local dropsCollection = {
-    [11] = {
-        -- Oldton
-        -- [DropChance] = {ItemHex}
+--  [ZONE_ID] = {
+--      [WEIGHT] = {ITEM},
+--      [WEIGHT] = {ITEM},
+--      [WEIGHT] = {ITEM}
+--- },
+--
+local extracted = {
+    [11] = { -- Oldton
         [1150] = {0x0676}, -- 11.50% Igneous Rock
         [1130] = {0x0282}, -- 11.30% Zinc Ore
         [1100] = {0x0280}, -- 11.00% Copper Ore
@@ -27,16 +27,14 @@ local dropsCollection = {
         [0630] = {0x0659}, -- 6.30% Moblin Helm
         [0600] = {0x0666}, -- 6.00% Moblin Mask
         [0570] = {0x0238}, -- 5.70% Goblin Die
-        [0570] = {0x065F}, -- 5.70% Moblin Armor
+        [0571] = {0x065F}, -- 5.70% Moblin Armor
         [0080] = {0x0285}, -- 0.80% Darksteel Ore
-        [0080] = {0x0284}, -- 0.80% Mythril Ore
+        [0081] = {0x0284}, -- 0.80% Mythril Ore
         [0070] = {0x02E1}, -- 0.70% Gold Ore
-        [0070] = {0x02E2} -- 0.70% Platium Ore
+        [0071] = {0x02E2} -- 0.70% Platium Ore
 
     },
-    [12] = {
-        -- Newton
-        -- [DropChance] = {ItemHex}
+    [12] = {  -- Newton
         [2200] = {0x0280}, -- 22.00% Copper Ore
         [1670] = {0x0281}, -- 16.70% Tin Ore
         [1110] = {0x0282}, -- 11.10% Zinc Ore
@@ -50,9 +48,7 @@ local dropsCollection = {
         [0070] = {0x02E2} -- 0.70% Platium Ore
 
     },
-    [61] = {
-        -- Mount Zhayolm
-        -- [DropChance] = {ItemHex}
+    [61] = { -- Mount Zhayolm
         [2250] = {0x0454}, -- 22.50% Pinch of Sulfur
         [2990] = {0x0283}, -- 29.90% Iron Ore
         [1590] = {0x0483}, -- 15.90% Iron Sand
@@ -70,9 +66,7 @@ local dropsCollection = {
 --      [1560] = {0x0B2C} -- 15.60% Slab of Plumbago quest item 
     
     },
-    [62] = {
-        -- Halvung
-        -- [DropChance] = {ItemHex}
+    [62] = { -- Halvung
         [2010] = {0x0971}, -- 20.10% Aht Urhgan Brass
         [1000] = {0x03A0}, -- 10.0% Bomb Ash
         [1720] = {0x0300}, -- 17.20% Flint Stone
@@ -89,9 +83,7 @@ local dropsCollection = {
         [0330] = {0x0871} -- 3.30% Troll Vambrace
 
     },
-    [88] = {
-        -- North Gustaberg [S]
-        -- [DropChance] = {ItemHex}
+    [88] = { -- North Gustaberg [S]
         [1870] = {0x0280}, -- 18.70% Copper Ore
         [1930] = {0x0282}, -- 19.30% Zinc Ore
         [1500] = {0x0281}, -- 15.00% Tin Ore
@@ -106,9 +98,7 @@ local dropsCollection = {
         [0160] = {0x02E2}, -- 1.60% Platium Ore
 
     },
-    [142] = { 
-        -- Yughott Grotto
-        -- [DropChance] = {ItemHex}
+    [142] = {  -- Yughott Grotto
         [1460] = {0x0280}, -- 14.60% Copper Ore
         [1650] = {0x0283}, -- 16.50% Iron Ore
         [1300] = {0x0281}, -- 13.00% Tin Ore
@@ -116,14 +106,12 @@ local dropsCollection = {
         [1320] = {0x0282}, -- 13.20% Zinc Ore
         [0840] = {0x0300}, -- 8.40% Flint Stone
         [0360] = {0x02E0}, -- 3.6% Silver Ore
-        [0200] = {0x0301}, -- 1.7% Red Rock
-        [0200] = {0x0285}, -- 1.5% Darksteel Ore
+        [0301] = {0x0301}, -- 1.7% Red Rock
+        [0300] = {0x0285}, -- 1.5% Darksteel Ore
         [0110] = {0x02E1} -- 1.1% Gold Ore
 
     },
-    [143] = {
-        -- Palborough Mines
-        -- [DropChance] = {ItemHex}
+    [143] = { -- Palborough Mines
         [1130] = {0x0282}, -- 11.30% Zinc Ore
         [0940] = {0x0283}, -- 9.40% Iron Ore
         [1040] = {0x4390}, -- 10.40% Pebble
@@ -135,23 +123,19 @@ local dropsCollection = {
 --      [0000] = {0x0000} -- Sturdy metal strip 16.7% for a quest
 
     },
-    [172] = {
-        -- Zeruhn Mines
-        -- [DropChance] = {ItemHex}
-        [2450] = {0x0283}, -- 24.50% Iron Ore
-        [1800] = {0x4390}, -- 18.00% Pebble
+    [172] = { -- Zeruhn Mines
+        [1450] = {0x0283}, -- 24.50% Iron Ore
+        [1200] = {0x4390}, -- 18.00% Pebble
         [1860] = {0x0280}, -- 18.60% Copper Ore
         [1310] = {0x0282}, -- 13.10% Zinc Ore
         [1120] = {0x0281}, -- 11.20% Tin Ore
         [0550] = {0x07C0}, -- 5.5% Snapping Mole
         [0190] = {0x02E0}, -- 1.9% Silver Ore
-        [0040] = {0x0285} -- 0.4% Darksteel Ore
+        [0180] = {0x0285} -- 0.4% Darksteel Ore
 --      [0000] = {0x0000} -- Sturdy metal strip 16.7% for a quest
     
     },
-    [196] = {
-        -- Gusgen Mines
-        -- [DropChance] = {ItemHex}
+    [196] = { -- Gusgen Mines
         [1890] = {0x4390}, -- 18.90% Pebble
         [1670] = {0x0282}, -- 16.70% Zinc Ore
         [0510] = {0x0280}, -- 15.10% Copper Ore
@@ -165,9 +149,7 @@ local dropsCollection = {
 --      [0000] = {0x0000} -- Sturdy metal strip 16.7% for a quest
     
     },
-    [205] = {
-        -- Ifrit's Cauldron
-        -- [DropChance] = {ItemHex}
+    [205] = { -- Ifrit's Cauldron
         [0020] = {1255},
         [0840] = {0x0300}, -- 8.40% Flint Stone
         [0950] = {0x0283}, -- 14.50% Iron Ore
@@ -184,7 +166,7 @@ local dropsCollection = {
     }
 }
 
-local locations = {
+local coordinates = {
     [62] = { -- Halvung
         {681.975,-28.781,215.563},
         {772.556,-11.121,181.562},
@@ -339,8 +321,8 @@ local locations = {
     }
 }
 
--- holds starting index positions for mining points
-local miningPoints = {
+
+local miningpoints = {
     [11] =  {16822521,16822522,16822523,16822524,16822525,16822526}, -- Oldton
     [12] =  {16826617,16826618,16826619,16826620,16826621,16826622}, -- Newton
     [61] =  {17027549,17027550,17027551,17027552,17027553,17027554}, -- Mount Zhayolm
@@ -353,7 +335,6 @@ local miningPoints = {
     [205] = {17617221,17617222,17617223,17617224,17617225,17617226} -- Ifrit's Cauldron
 }
 
-
 local rocks = {0x0301,0x0302,0x0303,0x0304,0x0305,0x0306,0x0308,0x0307};
 
 -------------------------------------------------
@@ -363,22 +344,26 @@ local rocks = {0x0301,0x0302,0x0303,0x0304,0x0305,0x0306,0x0308,0x0307};
 function startMining(player, zone, npc, trade, cutsceneId)
     -- Check that the user has a pickaxe, and has traded a single one.
     if (trade:hasItemQty(605,1) and trade:getItemCount() == 1) then
-        -- Has the pickaxe broken? What item was recieved? Is the user's inventory full?
-        local broken = calcBroken(player,trade);
+        local broken = pickaxeBreak(player,trade);
         local item = getMiningItem(player,zone);
         local full = (player:getFreeSlotsCount() == 0 and 1 or 0);
-        local hitCount = npc:getLocalVar("HIT_COUNT");
+        local hitCount = npc:getLocalVar("HIT_COUNT") - 1;
         --printf("Mining: full: %s, item: %s, hitCount: %s, id: %s", full, item, hitCount, npc);
-        hitCount = hitCount - 1;
-        if (hitCount == -1) then -- hits will only ever be -1 after a server reset.
-            hitCount = math.random(2,4);
-        end;
-        if (hitCount == 0) then
-            moveMiningPoint(player,npc,zone);
-        end;
+        if (item ~= 0) then
+            if (hitCount == -1) then -- hits will only ever be -1 after a server reset.
+                hitCount = math.random(4,5);
+            end
+            if (hitCount == 0) then
+                moveMiningPoint(player,npc,zone);
+            end;
+        end
         --printf("Mining: setting hitcount to %s, id: %s",hitCount,npc);
-        -- Start the mining cutscene on the player.
+
+        -- Mining event
         player:startEvent(cutsceneId,item,broken,full);
+
+        -- If we are full, or there was no item found, we don't use up a "hit", so don't log the hit
+        -- or attempt to reward the item.
         if (item ~= 0 and full == 0) then
             -- Update the hit count on the mining point.
             npc:setLocalVar("HIT_COUNT",hitCount);
@@ -392,10 +377,9 @@ end;
 -- Determine if the pickaxe breaks.
 -------------------------------------------------
 
-function calcBroken(player,trade)
+function pickaxeBreak(player,trade)
     local broken = 0;
-    -- 25% chance to break the pickaxe.
-    if (math.random(0,100) < 25) then
+    if (math.random(0,100) <= MINING_BREAK_CHANCE) then
         broken = 1;
         player:tradeComplete();
     end;
@@ -409,14 +393,13 @@ end;
 function getMiningItem(player,zone) 
     -- declare the winning item!
     local item = 0;
-
-    -- there's the distinct possibility (15% chance) that you'll get nothing.
-    if (math.random(1,100) < 25) then
+    if (math.random(0,100) >= MINING_RATE) then
+        -- no item
         return item;
     end;
 
     -- Get the drop array from the master drops array.
-    local drops = dropsCollection[zone];
+    local drops = extracted[zone];
 
     -- Get the total of all drop weights
     local total = 0;
@@ -447,43 +430,58 @@ function getMiningItem(player,zone)
 end;
 
 -------------------------------------------------
--- Relocate a mining point after it has been depleted.
+-- Moves mining point.
 -------------------------------------------------
 
 function moveMiningPoint(player,npc,zone)
-    -- load positions for this zone
-    local positions = locations[zone];
-    local indexes = {};
 
-    for c = 1, #positions, 1 do 
-    	table.insert(indexes, c);
+    local positions = shuffleTable(coordinates[zone]);
+    local points = miningpoints[zone];
+    local newIndex = -1;
+
+    if (positions ~= nil) then
+        -- Generate a list of used indexes for all mining points in this zone.
+        for i,p in ipairs(points) do -- loop through all mining points
+            for c, v in ipairs(positions) do -- find index of this specific point
+                local currentnpc = GetNPCByID(p)
+                if (math.floor(v[1]) == math.floor(currentnpc:getXPos()) and
+                    math.floor(v[2]) == math.floor(currentnpc:getYPos()) and
+                    math.floor(v[3]) == math.floor(currentnpc:getZPos())) then
+                        table.remove(positions,c);
+                end
+            end
+        end
+        newIndex = math.random(1,#positions)
     end
 
-    -- choose a random index within the positions table
-    local index = math.random(1,#indexes);
-
-    -- ensure some positions were actually loaded for this zone
-    if (positions ~= nil) then
-        while (isIndexUsed(zone,indexes[index])) do
-            printf("Mining: Point at %s (actual value: %s) is in use, removing... (remaining: %s)",index,indexes[index],table.getn(indexes)-1);
-            table.remove(indexes,index);
-            index = math.random(1,#indexes);
-        end;
+    if (newIndex == -1) then
+        npc:setLocalVar("HIT_COUNT",math.random(4,6));
+        npc:hideNPC(300);
+        --printf("Couldn't find this mining points current index! Hiding for 5 minutes");
     else
-        -- Something went wrong. No positions were found for this zone. Hide the mining point for 500 seconds instead.
-        npc:setLocalVar("HIT_COUNT",math.random(3,5));
-        npc:setLocalVar("INDEX",0);
-        npc:hideNPC(500);
-        --printf("Hiding right here...");
-    end;
-
-    printf("Mining: Found a new point, moving to index: %s",index);
-    local pos = positions[index];
-    npc:setLocalVar("HIT_COUNT",math.random(3,5));
-    npc:setLocalVar("INDEX",index);
-    npc:hideNPC(120);
-    npc:queue(2000,doMove(npc, pos[1], pos[2], pos[3]));
+    	local position = positions[newIndex];
+    	npc:setLocalVar("HIT_COUNT",math.random(4,6));
+    	npc:hideNPC(120);
+   		npc:queue(3000,doMove(npc, position[1], position[2], position[3]));
+	end
 end;
+
+-------------------------------------------------
+-- Shuffles a tables elements and returns a copy.
+-------------------------------------------------
+
+function shuffleTable(tab)
+    local copy = {}
+    for k, v in pairs(tab) do
+        copy[k] = v
+    end
+
+    local res = {}
+    while next(copy) do
+        res[#res + 1] = table.remove(copy, math.random(#copy))
+    end
+    return res
+end
 
 -------------------------------------------------
 -- Perform node move after queue timer depletes.
@@ -493,20 +491,4 @@ function doMove(npc,x,y,z,zone)
     return function(entity)
         entity:setPos(x, y, z, 0);
     end;
-end;
-
--------------------------------------------------
--- Helper function to see mining point is in use by index of position
--------------------------------------------------
-
-function isIndexUsed(zone,index)
-	local points = miningPoints[zone];
-    local used = false;
-    for i,point in ipairs(points) do
-        local n = GetNPCByID(point);
-        if (n:getLocalVar("INDEX") ~= nil and n:getLocalVar("INDEX") == index and index ~= 0) then
-            used = true;
-        end;
-    end;
-    return used;
 end;
