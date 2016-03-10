@@ -99,17 +99,16 @@ local extracted = {
 
     },
     [142] = {  -- Yughott Grotto
-        [1460] = {0x0280}, -- 14.60% Copper Ore
-        [1650] = {0x0283}, -- 16.50% Iron Ore
-        [1300] = {0x0281}, -- 13.00% Tin Ore
-        [1140] = {0x4390}, -- 11.40% Pebble
-        [1320] = {0x0282}, -- 13.20% Zinc Ore
-        [0840] = {0x0300}, -- 8.40% Flint Stone
-        [0360] = {0x02E0}, -- 3.6% Silver Ore
-        [0301] = {0x0301}, -- 1.7% Red Rock
-        [0300] = {0x0285}, -- 1.5% Darksteel Ore
-        [0110] = {0x02E1} -- 1.1% Gold Ore
-
+        {1460,0x0280}, -- 14.60% Copper Ore
+        {1650,0x0283}, -- 16.50% Iron Ore
+        {1300,0x0281}, -- 13.00% Tin Ore
+        {1140,0x4390}, -- 11.40% Pebble
+        {1320,0x0282}, -- 13.20% Zinc Ore
+        {0840,0x0300}, -- 8.40% Flint Stone
+        {0360,0x02E0}, -- 3.6% Silver Ore
+        {0301,0x0301}, -- 1.7% Red Rock
+        {0300,0x0285}, -- 1.5% Darksteel Ore
+        {0110,0x02E1} -- 1.1% Gold Ore
     },
     [143] = { -- Palborough Mines
         [1130] = {0x0282}, -- 11.30% Zinc Ore
@@ -402,23 +401,28 @@ function getMiningItem(player,zone)
     local drops = extracted[zone];
 
     -- Get the total of all drop weights
+    -- {rate,item}
     local total = 0;
-    for rate,item in pairs(drops) do
-        total = total+rate;
+    for i=1,#drops do
+        total = total+drops[i][1] -- [1] = rate, [2] = item
     end;
+
+    printf("Total: %s",total);
 
     -- Get a random number that will determine the drop from the array.
     local tickerStop = math.random(1,total);
 
     local countPosition = 0;
     -- find out the winning item from the drops array.
-    for rate, drop in pairs(drops) do
-        countPosition = countPosition+rate;
+    for i=1,#drops do
+        countPosition = countPosition+drops[i][1];
         if (countPosition >= tickerStop) then
-            item = drop[1];
+            item = drops[i][2];
             break;
         end;
     end;
+
+    printf("Item: %s",item);
 
     -- if the item was a coloured rock, turn it into the appropriate element
     local day = VanadielDayElement();

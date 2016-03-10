@@ -44,6 +44,8 @@ function onTrigger(player,npc)
     local GetGems = player:getVar("PXPassGetGems");
 
     if (player:getFameLevel(JEUNO) >= 3 and player:getQuestStatus(JEUNO,TENSHODO_MEMBERSHIP) == QUEST_AVAILABLE) then 
+        player.PrintToPlayer(string.format("Your fame must be level 3 or greater to begin this quest."))
+        player.PrintToPlayer(string.format("Currently, your fame is level: %s", player:getFameLevel(JEUNO)))
         player:startEvent(0x006a,8); -- Start Quest (need fame 3 jeuno)
     elseif (CoPMission == DARKNESS_NAMED and PsoXjaPass == false and GetGems == 0) then
         player:startEvent(54); -- Gimme gems for Pso'Xja pass
