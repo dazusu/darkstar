@@ -157,10 +157,14 @@ bool CAIContainer::Internal_Engage(uint16 targetid)
     //#TODO: pet engage/disengage
     auto entity {dynamic_cast<CBattleEntity*>(PEntity)};
 
-    if (entity && entity->PAI->IsEngaged() && entity->GetBattleTargetID() != targetid)
+    if (entity && entity->PAI->IsEngaged())
     {
-        ChangeTarget(targetid);
-        return true;
+        if (entity->GetBattleTargetID() != targetid)
+        {
+            ChangeTarget(targetid);
+            return true;
+        }
+        return false;
     }
     //#TODO: use valid target stuff from spell
     if (entity)
@@ -413,7 +417,7 @@ bool CAIContainer::QueueEmpty()
 
 void CAIContainer::Internal_Despawn(duration spawnTime)
 {
-    if (IsSpawned())
+    if (!IsCurrentState<CDespawnState>())
     {
         ForceChangeState<CDespawnState>(PEntity, spawnTime);
     }
