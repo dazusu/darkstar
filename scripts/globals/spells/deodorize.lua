@@ -24,6 +24,10 @@ function onSpellCast(caster,target,spell)
             duration = duration * target:getMainLvl() / 15; -- level adjustment
         end
 
+        if (duration < 30) then
+        	duration = 30
+        end
+
         if (caster:hasStatusEffect(EFFECT_COMPOSURE) == true and caster:getID() == target:getID()) then
             duration = duration * 3;
         end

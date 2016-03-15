@@ -25,7 +25,7 @@ function onSpellCast(caster,target,spell)
             duration = duration * target:getMainLvl() / 20; -- level adjustment
         end
 
-        if (durcation < 30) then
+        if (duration < 30) then
         	duration = 30;
         end
 
