@@ -464,7 +464,7 @@ function checkRegime(player, mob, rid, index)
                     if (k1 == fov_info[1] and k2 == fov_info[2] and k3 == fov_info[3] and k4 == fov_info[4]) then
                         -- complete regime
                         player:messageBasic(FOV_MSG_COMPLETED_REGIME);
-                        local reward = getFoVregimeReward(rid);
+                        local reward = getFoVregimeReward(rid) * 2;
                         local tabs = (math.floor(reward / 10) * TABS_RATE);
                         local VanadielEpoch = vanaDay();
 
