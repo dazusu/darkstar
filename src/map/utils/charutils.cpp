@@ -3110,11 +3110,11 @@ namespace charutils
                         switch (pcinzone)
                         {
                             case 1: exp *= 1.00f; break;
-                            case 2:	exp *= 0.75f; break;
-                            case 3: exp *= 0.55f; break;
-                            case 4: exp *= 0.45f; break;
-                            case 5:	exp *= 0.39f; break;
-                            case 6: exp *= 0.35f; break;
+                            case 2:	exp *= 0.95f; break;
+                            case 3: exp *= 0.90f; break;
+                            case 4: exp *= 0.85f; break;
+                            case 5:	exp *= 0.80f; break;
+                            case 6: exp *= 0.75f; break;
                             default: exp *= (1.8f / pcinzone); break;
                         }
                     }
@@ -3123,11 +3123,11 @@ namespace charutils
                         switch (pcinzone)
                         {
                             case 1: exp *= 1.00f; break;
-                            case 2: exp *= 0.75f; break;
-                            case 3: exp *= 0.55f; break;
-                            case 4: exp *= 0.45f; break;
-                            case 5: exp *= 0.39f; break;
-                            case 6: exp *= 0.35f; break;
+                            case 2: exp *= 0.95f; break;
+                            case 3: exp *= 0.90f; break;
+                            case 4: exp *= 0.85f; break;
+                            case 5: exp *= 0.80f; break;
+                            case 6: exp *= 0.75f; break;
                             default: exp *= (1.8f / pcinzone); break;
                         }
 
@@ -3137,11 +3137,11 @@ namespace charutils
                         switch (pcinzone)
                         {
                             case 1:	exp *= 1.00f; break;
-                            case 2: exp *= 0.60f; break;
-                            case 3: exp *= 0.45f; break;
-                            case 4: exp *= 0.40f; break;
-                            case 5: exp *= 0.37f; break;
-                            case 6: exp *= 0.35f; break;
+                            case 2: exp *= 0.91f; break;
+                            case 3: exp *= 0.86f; break;
+                            case 4: exp *= 0.81f; break;
+                            case 5: exp *= 0.76f; break;
+                            case 6: exp *= 0.71f; break;
                             default: exp *= (1.8f / pcinzone); break;
                         }
                     }

@@ -50,6 +50,7 @@ function onEventUpdate(player,csid,option,target)
     local party = player:getParty();
     
     if (party ~= nil) then
+        printf("party isnt nil")
         for i,v in ipairs(party) do
             if (not v:hasKeyItem(REMNANTS_PERMIT)) then
                 player:messageText(target,MEMBER_NO_REQS, false);
