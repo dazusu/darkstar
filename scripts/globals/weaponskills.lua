@@ -19,7 +19,7 @@ local elementalBelt =   { 11755, 11758, 11760, 11757, 11756, 11759, 11761, 11762
 function doPhysicalWeaponskill(attacker, target, wsID, params, tp, primary)
 
     local criticalHit = false;
-    local bonusacc = 0;
+    local bonusacc = attacker:getMod(MOD_WSACC);
     local bonusfTP = 0;
     local bonusTP = params.bonusTP or 0
     local multiHitfTP = params.multiHitfTP or false
@@ -257,7 +257,7 @@ end;
 
 function doMagicWeaponskill(attacker, target, wsID, params, tp, primary)
 
-    local bonusacc = 0;
+    local bonusacc = attacker:getMod(MOD_WSACC);
     local bonusfTP = 0;
     local bonusTP = params.bonusTP or 0
 
@@ -300,7 +300,7 @@ function doMagicWeaponskill(attacker, target, wsID, params, tp, primary)
     dmg = dmg * ftp;
     
     dmg = addBonusesAbility(attacker, params.ele, target, dmg, params);
-    dmg = dmg * applyResistanceAbility(attacker,target,params.ele,params.skill, 0);
+    dmg = dmg * applyResistanceAbility(attacker,target,params.ele,params.skill, bonusacc);
     dmg = target:magicDmgTaken(dmg);
     dmg = adjustForTarget(target,dmg,params.ele);
     
@@ -439,10 +439,10 @@ end;
 function fTP(tp,ftp1,ftp2,ftp3)
     if tp < 1000 then tp = 1000 end
     if (tp>=1000 and tp<2000) then
-        return ftp1 + ( ((ftp2-ftp1)/100) * (tp-1000));
+        return ftp1 + ( ((ftp2-ftp1)/1000) * (tp-1000));
     elseif (tp>=2000 and tp<=3000) then
         -- generate a straight line between ftp2 and ftp3 and find point @ tp
-        return ftp2 + ( ((ftp3-ftp2)/100) * (tp-2000));
+        return ftp2 + ( ((ftp3-ftp2)/1000) * (tp-2000));
     else
         print("fTP error: TP value is not between 100-300!");
     end
@@ -693,7 +693,7 @@ end;
  -- params contains: ftp100, ftp200, ftp300, str_wsc, dex_wsc, vit_wsc, int_wsc, mnd_wsc, canCrit, crit100, crit200, crit300, acc100, acc200, acc300, ignoresDef, ignore100, ignore200, ignore300, atkmulti
  function doRangedWeaponskill(attacker, target, wsID, params, tp, primary)
 
-    local bonusacc = 0;
+    local bonusacc = attacker:getMod(MOD_WSACC);
     local bonusfTP = 0;
     local bonusTP = params.bonusTP or 0
     local multiHitfTP = params.multiHitfTP or false
