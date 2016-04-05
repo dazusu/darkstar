@@ -10,7 +10,7 @@ require("scripts/globals/titles");
 -----------------------------------
 
 function onMobSpawn(mob)
-    SetServerVariable("[POP]King_Arthro",0);
+    
 end;
 
 -----------------------------------
@@ -25,12 +25,12 @@ end;
 -----------------------------------
 
 function onMobDespawn(mob)
+    
 
 	local knightCrab = 17203206 -- the ID of the first Knight Crab in Jugner Forest.
 	local pop = true;
 
-	for k=knightCrab,10 do
-		printf("Mob: %s - ACTION: %s = %s",k,GetMobAction(k),ACTION_NONE)
+	for k=knightCrab,knightCrab+10,1 do
 		if (GetMobAction(k) ~= ACTION_NONE) then
 			pop = false
 		end

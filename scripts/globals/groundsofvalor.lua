@@ -506,7 +506,7 @@ function checkGoVregime(player,mob,rid,index)
                         local reward = getGoVregimeReward(rid);
                         local RewardCAP = reward * 2;
                         local GoV_clears = 0;
-                        local tabs = (math.floor(reward/10)*TABS_RATE);
+                        local tabs = (math.floor(reward/15)*TABS_RATE);
                         local VanadielEpoch = vanaDay();
                         local RandomProwess = (math.random(777,788));
                         local power = 0;
@@ -568,8 +568,8 @@ function checkGoVregime(player,mob,rid,index)
 
                         -- Award gil and tabs once per day.
                         if (player:getVar("fov_LastReward") < VanadielEpoch) then
-                            player:messageBasic(GOV_MSG_GET_GIL,reward);
-                            player:addGil(reward);
+                            player:messageBasic(GOV_MSG_GET_GIL,reward * 1.75);
+                            player:addGil(reward * 1.75);
                             player:addCurrency("valor_point", tabs);
                             player:messageBasic(GOV_MSG_GET_TABS,tabs,player:getCurrency("valor_point")); -- Careful about order.
                             if (REGIME_WAIT == 1) then
@@ -578,7 +578,7 @@ function checkGoVregime(player,mob,rid,index)
                         end
 
                         -- Give player the candy and inform which Prowess they got.
-                        player:addExp(reward);
+                        player:addExp(reward * 0.75);
                         player:messageBasic(ProwessMessage);
                         
                         -- Debugging crap.

@@ -17,7 +17,7 @@ require("scripts/globals/common");
 
 -- Enable Extension (1= yes 0= no)
 ENABLE_COP     = 0;
-ENABLE_TOAU    = 1;
+ENABLE_TOAU    = 0;
 ENABLE_WOTG    = 0;
 ENABLE_ACP     = 0;
 ENABLE_AMK     = 0;
@@ -114,7 +114,7 @@ FrigiciteDuration = 45; -- When OldSChoolG2 is enabled, this is the time (in sec
 REGIME_WAIT = 0; --Make people wait till 00:00 game time as in retail. If it's 0, there is no wait time.
 FIELD_MANUALS = 1; -- Enables Fields of Valor manuals
 LOW_LEVEL_REGIME = 0; --Allow people to kill regime targets even if they give no exp, allowing people to farm regime targets at 75 in low level areas.
-GROUNDS_TOMES = 0; -- Enables Grounds of Valor tomes
+GROUNDS_TOMES = 1; -- Enables Grounds of Valor tomes
 
 -- JOB ABILITY/TRAIT SPECIFIC SETTINGS
 CIRCLE_KILLER_EFFECT = 20; -- Intimidation percentage granted by circle effects. (made up number)

@@ -464,14 +464,14 @@ function checkRegime(player, mob, rid, index)
                     if (k1 == fov_info[1] and k2 == fov_info[2] and k3 == fov_info[3] and k4 == fov_info[4]) then
                         -- complete regime
                         player:messageBasic(FOV_MSG_COMPLETED_REGIME);
-                        local reward = getFoVregimeReward(rid) * 2;
-                        local tabs = (math.floor(reward / 10) * TABS_RATE);
+                        local reward = getFoVregimeReward(rid);
+                        local tabs = (math.floor(reward / 15) * TABS_RATE);
                         local VanadielEpoch = vanaDay();
 
                         -- Award gil and tabs once per day.
                         if (player:getVar("fov_LastReward") < VanadielEpoch) then
-                           player:messageBasic(FOV_MSG_GET_GIL, reward);
-                           player:addGil(reward);
+                           player:messageBasic(FOV_MSG_GET_GIL, reward * 1.75);
+                           player:addGil(reward * 1.75);
                            player:addCurrency("valor_point", tabs);
                            player:messageBasic(FOV_MSG_GET_TABS, tabs, player:getCurrency("valor_point")); -- Careful about order.
                            if (REGIME_WAIT == 1) then
@@ -480,7 +480,7 @@ function checkRegime(player, mob, rid, index)
                         end
 
                         -- TODO: display msgs (based on zone annoyingly, so will need player:getZoneID() then a lookup)
-                        player:addExp(reward);
+                        player:addExp(reward * 0.75);
                         if (k1 ~= 0) then player:setVar("fov_numkilled1", 0); end
                         if (k2 ~= 0) then player:setVar("fov_numkilled2", 0); end
                         if (k3 ~= 0) then player:setVar("fov_numkilled3", 0); end
