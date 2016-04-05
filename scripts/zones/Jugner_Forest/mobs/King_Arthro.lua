@@ -12,16 +12,20 @@ require("scripts/globals/titles");
 function onMonsterMagicPrepare(mob, target)
 
     -- Instant cast on spells - Waterga IV, Poisonga II, Drown, and Enwater
-    local rnd = math.random();
+    local rnd = math.random(0,100);
 
-    if (rnd < 0.2) then
+    if (rnd < 30) then
         return 202; -- Waterga IV
-    elseif (rnd < 0.6) then
+
+    elseif (rnd < 60) then
         return 226; -- Poisonga II
-    elseif (rnd < 0.8) then
+
+    elseif (rnd < 80) then
         return 240; -- Drown
+
     else
         return 105; -- Enwater
+        
     end
 
 end;
@@ -31,4 +35,5 @@ end;
 -----------------------------------
 
 function onMobDeath(mob, killer, ally)
+
 end;

@@ -25,10 +25,18 @@ end;
 -----------------------------------
 
 function onMobDespawn(mob)
-    SetServerVariable("[POP]King_Arthro",GetServerVariable("[POP]King_Arthro") + 1);
 
-    if (GetServerVariable("[POP]King_Arthro") == 10) then
-        SetServerVariable("[POP]King_Arthro",0);
-        SpawnMob(17203216); -- Pop King Arthro !
-    end
+	local knightCrab = 17203206 -- the ID of the first Knight Crab in Jugner Forest.
+	local pop = true;
+
+	for k=knightCrab,10 do
+		printf("Mob: %s - ACTION: %s = %s",k,GetMobAction(k),ACTION_NONE)
+		if (GetMobAction(k) ~= ACTION_NONE) then
+			pop = false
+		end
+	end
+
+	if (pop == true) then
+		SpawnMob(17203216);
+	end
 end;

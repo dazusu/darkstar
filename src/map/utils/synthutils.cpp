@@ -522,12 +522,20 @@ int32 doSynthSkillUp(CCharEntity* PChar)
 		if (charSkill < maxSkill)
 		{
 			double skillUpChance = (synthDiff*(map_config.craft_chance_multiplier - (log(1.2 + charSkill/100))))/10;
+
+
 			skillUpChance = skillUpChance/(1 + (PChar->CraftContainer->getQuantity(0) == SYNTHESIS_FAIL));		// результат синтеза хранится в quantity нулевой ячейки
 
             double random = dsprand::GetRandomNumber(1.);
 			#ifdef _DSP_SYNTH_DEBUG_MESSAGES_
 			ShowDebug(CL_CYAN"Skill up chance: %g  Random: %g\n" CL_RESET, skillUpChance, random);
 			#endif
+
+			// increase skillup chance below level 60 - edgeffxi mod
+			if (charSkill < 6000) { 
+				ShowDebug(CL_CYAN"BONUS!  Skillup: %g, BonusSkillup: %g,  Random: %g\n" CL_RESET, skillUpChance, skillUpChance*3.50, random);
+				skillUpChance = skillUpChance * 3.50;
+			}
 
 			if (random < skillUpChance)
 			{
