@@ -17,7 +17,7 @@ require("scripts/globals/common");
 
 -- Enable Extension (1= yes 0= no)
 ENABLE_COP     = 0;
-ENABLE_TOAU    = 0;
+ENABLE_TOAU    = 1;
 ENABLE_WOTG    = 0;
 ENABLE_ACP     = 0;
 ENABLE_AMK     = 0;
@@ -49,6 +49,12 @@ SHOP_PRICE = 1.000; -- Multiplies prices in NPC shops.
 GIL_RATE   = 1.000; -- Multiplies gil earned from quests.  Won't always display in game.
 EXP_RATE   = 1.000; -- Multiplies exp earned from fov.
 TABS_RATE  = 1.000; -- Multiplies tabs earned from fov.
+SAN_FAME   = 1.000; -- Multiplies fame earned from San d'Oria quests.
+BAS_FAME   = 1.000; -- Multiplies fame earned from Bastok quests.
+WIN_FAME   = 1.000; -- Multiplies fame earned from Windurst quests.
+NORG_FAME  = 1.000; -- Multiplies fame earned from Norg and Tenshodo quests.
+JEUNO_FAME = 1.000; -- Multiplies fame earned from Jeuno quests.
+
 CURE_POWER  = 1.000; -- Multiplies amount healed from Healing Magic, including the relevant Blue Magic.
 SPELL_POWER = 1.000; -- Multiplies damage dealt by Elemental and Divine Magic.
 BLUE_POWER  = 1.000; -- Multiplies damage dealt by most Blue Magic.
@@ -105,7 +111,7 @@ OldSchoolG2 = true; -- Set true to require the NMs for "Atop the Highest Mountai
 FrigiciteDuration = 45; -- When OldSChoolG2 is enabled, this is the time (in seconds) you have from killing Boreal NMs to click the "???" target.
 
 -- FIELDS OF VALOR/Grounds of Valor SETTINGS
-REGIME_WAIT = 1; --Make people wait till 00:00 game time as in retail. If it's 0, there is no wait time.
+REGIME_WAIT = 0; --Make people wait till 00:00 game time as in retail. If it's 0, there is no wait time.
 FIELD_MANUALS = 1; -- Enables Fields of Valor manuals
 LOW_LEVEL_REGIME = 0; --Allow people to kill regime targets even if they give no exp, allowing people to farm regime targets at 75 in low level areas.
 GROUNDS_TOMES = 0; -- Enables Grounds of Valor tomes
@@ -124,7 +130,7 @@ BLINK_SHADOWS = 2;   -- number of shadows supplied by Blink spell
 ENSPELL_DURATION = 180; -- duration of RDM en-spells
 SPIKE_EFFECT_DURATION = 180; -- the duration of RDM, BLM spikes effects (not Reprisal)
 ELEMENTAL_DEBUFF_DURATION = 120; -- base duration of elemental debuffs
-AQUAVEIL_COUNTER = 1;  -- Base amount of hits Aquaveil absorbs to prevent spell interrupts. Retail is 1.
+AQUAVEIL_INTERR_RATE = 25;  -- percent spell interruption rate reduction from Aquaveil (see http://www.bluegartrls.com/forum/82143-spell-interruption-down-cap-aquaveil-tests.html)
 ABSORB_SPELL_AMOUNT = 8; -- how much of a stat gets absorbed by DRK absorb spells - expected to be a multiple of 8.
 ABSORB_SPELL_TICK = 9; -- duration of 1 absorb spell tick
 SNEAK_INVIS_DURATION_MULTIPLIER = 1; -- multiplies duration of sneak,invis,deodorize to reduce player torture. 1 = retail behavior.
@@ -153,7 +159,7 @@ TIMEZONE_OFFSET = 9.0; -- Offset from UTC used to determine when "JP Midnight" i
 ALLOW_MULTIPLE_EXP_RINGS = 0; -- Set to 1 to remove ownership restrictions on the Chariot/Empress/Emperor Band trio.
 BYPASS_EXP_RING_ONE_PER_WEEK = 0; -- -- Set to 1 to bypass the limit of one ring per Conquest Tally Week.
 NUMBER_OF_DM_EARRINGS = 1; -- Number of earrings players can simultaneously own from Divine Might before scripts start blocking them (Default: 1)
-HOMEPOINT_TELEPORT = 0; -- Enables the homepoint teleport system
+HOMEPOINT_TELEPORT = 1; -- Enables the homepoint teleport system
 DIG_ABUNDANCE_BONUS = 0; -- Increase chance of digging up an item (450  = item digup chance +45)
 DIG_FATIGUE = 1; -- Set to 0 to disable Dig Fatigue
 MIASMA_FILTER_COOLDOWN = 5;  -- Number of days a player can obtain a Miasma Filter KI for any of the Boneyard Gully ENMs (Minimum:1)
