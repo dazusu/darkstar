@@ -4583,7 +4583,7 @@ void SmallPacket0x0E8(map_session_data_t* session, CCharEntity* PChar, CBasicPac
             {
                 PChar->PPet->PAI->Disengage();
             }
-            PChar->StatusEffectContainer->AddStatusEffect(new CStatusEffect(EFFECT_HEALING, 0, 0, 10, 0));
+            PChar->StatusEffectContainer->AddStatusEffect(new CStatusEffect(EFFECT_HEALING, 0, 0, 5, 0));
             return;
         }
         PChar->pushPacket(new CMessageBasicPacket(PChar, PChar, 0, 0, 345));
