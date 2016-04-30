@@ -3285,7 +3285,10 @@ namespace charutils
                             default: PMember->expChain.chainTime = gettick() + 60000; break;
                         }
                     }
-                    exp = charutils::AddExpBonus(PMember, exp);
+
+					uint8 mLevel = PMember->GetMLevel();
+
+                    exp = charutils::AddExpBonus(PMember, exp, mLevel);
 
                     // pet or companion exp penalty needs to be added here
 
@@ -4171,9 +4174,18 @@ namespace charutils
             PChar->id);
     }
 
-    uint32  AddExpBonus(CCharEntity* PChar, uint32 exp)
+    uint32  AddExpBonus(CCharEntity* PChar, uint32 exp, uint8 level)
     {
-        int32 bonus = 0;
+        uint8 bonus = 0;
+		uint8 scaleBonus = 0;
+		uint8 MaxLevel = 75;
+		uint8 MinLevel = 4;
+		uint8 LevelRange = 0;
+		double NormLevel = 0;
+		double MaxScale = 0.85;
+		double MinScale = 0.05;
+		double ScaleFactor = 1.55; // 1.85
+
         if (PChar->StatusEffectContainer->GetStatusEffect(EFFECT_DEDICATION))
         {
             CStatusEffect* dedication = PChar->StatusEffectContainer->GetStatusEffect(EFFECT_DEDICATION);
@@ -4186,8 +4198,15 @@ namespace charutils
             {
                 PChar->StatusEffectContainer->DelStatusEffect(EFFECT_DEDICATION);
             }
+		}
 
-        }
+		if (level > MinLevel && exp > 0) {
+			LevelRange = (MaxLevel - MinLevel)-1;
+			NormLevel = (level - MinLevel) / (double)LevelRange;
+			ScaleFactor += ceil(0.12f * log(NormLevel) * 100) / 100.0f; // 0.19
+			scaleBonus = int((exp * ScaleFactor) - exp);
+			ShowDebug(CL_CYAN"EXP Bonus: %s (Lv.%u) got a scale bonus of %u EXP (factor: %f - base exp: %u)\n" CL_RESET, PChar->GetName(), level, scaleBonus, ScaleFactor, exp);
+		}
 
         bonus += exp * (PChar->getMod(MOD_EXP_BONUS) / 100.0f);
 
@@ -4195,6 +4214,10 @@ namespace charutils
             exp = 0;
         else
             exp = exp + bonus;
+
+		if (scaleBonus > 0)
+			exp = exp + scaleBonus;
+	
 
         return exp;
     }
