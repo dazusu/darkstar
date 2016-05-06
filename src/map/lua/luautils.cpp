@@ -4283,7 +4283,7 @@ namespace luautils
 
         if (PMob != nullptr)
         {
-            uint32 RespawnTime = (uint32)PMob->m_RespawnTime / 1000;
+			uint32 RespawnTime = (uint32)PMob->m_RespawnTime / 1000;
             lua_pushinteger(L, RespawnTime);
             return 1;
         }
