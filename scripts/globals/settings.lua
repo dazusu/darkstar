@@ -34,7 +34,7 @@ RESTRICT_BY_EXPANSION = 1;
 
 -- CHARACTER CONFIG
 INITIAL_LEVEL_CAP = 50; -- The initial level cap for new players.  There seems to be a hardcap of 255.
-MAX_LEVEL = 50; -- Level max of the server, lowers the attainable cap by disabling Limit Break quests.
+MAX_LEVEL = 60; -- Level max of the server, lowers the attainable cap by disabling Limit Break quests.
 NORMAL_MOB_MAX_LEVEL_RANGE_MIN = 81; -- Lower Bound of Max Level Range for Normal Mobs (0 = Uncapped)
 NORMAL_MOB_MAX_LEVEL_RANGE_MAX = 84; -- Upper Bound of Max Level Range for Normal Mobs (0 = Uncapped)
 START_GIL = 10; --Amount of gil given to newly created characters.
@@ -60,13 +60,13 @@ WEAPON_SKILL_POWER  = 1.000; -- Multiplies damage dealt by Weapon Skills.
 WEAPON_SKILL_POINTS = 1.000; -- Multiplies points earned during weapon unlocking.
 USE_ADOULIN_WEAPON_SKILL_CHANGES = false; -- true/false. Change to toggle new Adoulin weapon skill damage calculations
 
-HARVESTING_BREAK_CHANCE = 0.33; -- % chance for the sickle to break during harvesting.  Set between 0 and 1.
-EXCAVATION_BREAK_CHANCE = 0.33; -- % chance for the pickaxe to break during excavation.  Set between 0 and 1.
-LOGGING_BREAK_CHANCE    = 0.33; -- % chance for the hatchet to break during logging.  Set between 0 and 1.
+HARVESTING_BREAK_CHANCE = 15; -- % chance for the sickle to break during harvesting.  Set between 0 and 1.
+EXCAVATION_BREAK_CHANCE = 15; -- % chance for the pickaxe to break during excavation.  Set between 0 and 1.
+LOGGING_BREAK_CHANCE    = 15; -- % chance for the hatchet to break during logging.  Set between 0 and 1.
 MINING_BREAK_CHANCE     = 15; -- % chance for the pickaxe to break during mining.  Set between 0 and 1.
-HARVESTING_RATE         = 0.50; -- % chance to recieve an item from haresting.  Set between 0 and 1.
-EXCAVATION_RATE         = 0.50; -- % chance to recieve an item from excavation.  Set between 0 and 1.
-LOGGING_RATE            = 0.50; -- % chance to recieve an item from logging.  Set between 0 and 1.
+HARVESTING_RATE         = 78; -- % chance to recieve an item from haresting.  Set between 0 and 1.
+EXCAVATION_RATE         = 78; -- % chance to recieve an item from excavation.  Set between 0 and 1.
+LOGGING_RATE            = 78; -- % chance to recieve an item from logging.  Set between 0 and 1.
 MINING_RATE             = 78; -- % chance to recieve an item from mining.  Set between 0 and 1.
 
 -- SE implemented coffer/chest illusion time in order to prevent coffer farming. No-one in the same area can open a chest or coffer for loot (gil, gems & items)

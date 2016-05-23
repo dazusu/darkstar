@@ -1,145 +1,417 @@
--------------------------------------------------
---  Logging functions
---  Info from:
---      http://wiki.ffxiclopedia.org/wiki/Logging
--------------------------------------------------
+------------------------------------------------------------------------------------------
+--  Logging 2.0 (ACRE - Update 13/05/2016)
+--  Note: When implementing new zones, ensure there are more logging point locations
+--  than there are logging points for the zone.
+-- 	Drop rates have been truncated down onto 4 ratio's as follows: 
+--				Common 		1000
+--				Uncommon	300
+--				Rare		200
+--				Very Rare	100
+------------------------------------------------------------------------------------------
 
 require("scripts/globals/settings");
-require("scripts/globals/status");
+require("scripts/globals/utils");
 
--------------------------------------------------
--- npcid and drop by zone
--------------------------------------------------
+-- Note: All drops are weights, these are /not/ percentages.
 
--- Zone, {npcid,npcid,npcid,..}
-local npcid = {2,  {16785769,16785770,16785771,16785772},                   -- Carpenter's Landing
-               24, {16875879,16875880,16875881,16875882,16875883,16875884}, -- Lufaise Meadows
-               25, {16879968,16879969,16879970,16879971,16879972,16879973}, -- Misareaux Coast
-               65, {17044010,17044011,17044012,17044013,17044014,17044015}, -- Mamook
-               79, {17101314,17101315,17101316,17101317,17101318,17101319}, -- Caedarva Mire
-               81, {17109782,17109783,17109784,17109785,17109786,17109787}, -- East Ronfaure [S]
-               82, {17113901,17113902,17113903,17113904,17113905,17113906}, -- Jugner Forest [S]
-               96, {17171239,17171240,17171241,17171242,17171243,17171244}, -- Fort Karugo-Narugo [S]
-               101,{17191526,17191527,17191528,17191529,17191530,17191531}, -- East Ronfaure
-               104,{17203860,17203861,17203862,17203863,17203864,17203865}, -- Jugner Forest
-               118,{17261171,17261172,17261173,17261174,17261175,17261176}, -- Buburimu Peninsula
-               123,{17281626,17281627,17281628,17281629,17281630,17281631}, -- Yuhtunga Jungle
-               124,{17285671,17285672,17285673,17285674,17285675,17285676}, -- Yhoator Jungle
-               140,{17350970,17350971,17350972,17350973}};                  -- Ghelsba Outpost
--- Zone, {itemid,drop rate,itemid,drop rate,..}
--- Must be in ascending order by drop rate
-local drop = {2,  {0x1198,0.0900,0x02B0,0.1800,0x02BA,0.2700,0x039B,0.3600,0x02B7,0.4500,0x02B5,0.7050,0x02B8,0.9600,0x02BB,1.0000},
-              24, {0x02B5,0.0950,0x110B,0.1900,0x02B0,0.4400,0x02B3,0.6900,0x02BA,0.9400,0x02B2,0.9600,0x02BB,0.9800,0x1198,1.0000},
-              25, {0x02B0,0.4000,0x02B5,0.4700,0x02B3,0.5400,0x110B,0.7400,0x02BA,0.9400,0x02B2,0.9600,0x02BB,0.9800,0x1198,1.0000},
-              65, {0x15BE,0.2300,0x08A5,0.4600,0x02B6,0.5100,0x02BE,0.5600,0x02B1,0.6100,0x02BD,0.6590,0x09C7,0.7660,0x02D7,0.8730,0x02B0,0.9800,0x02D9,1.0000},
-              79, {0x02D9,0.0392,0x02B6,0.0944,0x02BE,0.1666,0x02BD,0.2388,0x02B0,0.3590,0x08A5,0.4952,0x02B1,0.6474,0x09C7,0.8156,0x02D7,1.0000},
-              81, {0x09E6,0.0030,0x09E4,0.0330,0x02BB,0.0660,0x023E,0.1110,0x02B5,0.1740,0x02B6,0.2640,0x027F,0.3810,0x02BA,0.5130,0x161D,0.6450,0x02B3,0.7950,0x02B0,1.0000},
-              82, {0x02B0,0.1800,0x02BA,0.3600,0x02B5,0.5400,0x02B7,0.7200,0x02BB,0.7700,0x09E4,0.8200,0x1198,0.9000,0x161D,0.9800,0x09E6,1.0000},
-              96, {0x46FF,0.0040,0x04D4,0.0240,0x034F,0.1630,0x11DA,0.3140,0x161E,0.4810,0x1612,0.7080,0x103A,1.0000},
-              101,{0x02B6,0.0500,0x02B8,0.1130,0x023E,0.1760,0x02B6,0.2640,0x02B3,0.4760,0x02B0,0.7380,0x02BA,1.0000},
-              104,{0x02BB,0.0120,0x1198,0.0600,0x039B,0.1320,0x02BA,0.2590,0x02B0,0.4220,0x02B7,0.5970,0x02B8,0.7900,0x02B5,1.0000},
-              118,{0x02BC,0.0170,0x02BD,0.0430,0x02BE,0.0770,0x023E,0.1290,0x039B,0.2070,0x02B9,0.3020,0x1197,0.4050,0x115D,0.5600,0x02B0,0.7580,0x02B1,1.0000},
-              123,{0x02B0,0.2350,0x02D1,0.4650,0x04A8,0.0500,0x02B1,0.7000,0x02B9,0.7700,0x03AC,0.8400,0x0390,0.9100,0x02BD,0.9400,0x02BE,0.9700,0x04D5,1.0000},
-              124,{0x02BE,0.0120,0x04A8,0.0500,0x02BC,0.0520,0x03AC,0.0920,0x039B,0.1620,0x0390,0.3070,0x02B1,0.4780,0x02B0,0.7290,0x02D1,0.9800,0x04D5,1.0000},
-              140,{0x02B9,0.0530,0x02B2,0.1060,0x02B7,0.2050,0x02B3,0.4400,0x02BA,0.6950,0x02B0,1.0000}};
+local extracted = {
+    [2] = { -- Carpenter's Landing
+        {1000,693}, -- Walnut Log (Common)
+		{1000,695}, -- Willow Log (Common)
+		{300,696}, -- Yew Log (Uncommon)
+        {200,688}, -- Arrowood Log (Rare)
+		{200,698}, -- Ash Log (Rare)
+		{200,923}, -- Dryad Root (Rare)
+		{100,4505}, --Acorn (Very Rare)
+		{100,699}, -- Oak Log (Very Rare)
+    },
+    [24] = { -- Lufaise Meadows
+        {1000,688}, -- Arrowood Log (Common)
+		{1000,698}, -- Ash Log (Common)
+		{1000,691}, -- Maple Log (Common)
+        {300,4363}, -- Faerie Apple (Uncommon)
+        {200,693}, -- Walnut Log (Rare)
+		{100,4505}, --Acorn (Very Rare)
+		{100,690}, -- Elm Log (Very Rare) 
+		{100,699}, -- Oak Log (Very Rare) 
+    },
+	[25] = { -- Misareaux Coast
+        {300,688}, -- Arrowood Log (Uncommon)
+        {300,4363}, -- Faerie Apple (Uncommon)
+		{200,698}, -- Ash Log (Rare)
+		{200,691}, -- Maple Log (Rare)
+        {200,693}, -- Walnut Log (Rare)
+		{100,4505}, --Acorn (Very Rare)
+		{100,690}, -- Elm Log (Very Rare) 
+		{100,699}, -- Oak Log (Very Rare) 
+    },
+    [101] = { -- East Ronfaure
+        {1000,688}, -- Arrowood Log (Common)
+		{1000,698}, -- Ash Log (Common)
+		{1000,691}, -- Maple Log (Common)
+		{200,694}, -- Chestnut Log (Rare)
+		{200,574}, -- Fruit Seeds (Rare)
+		{200,696}, -- Yew Log (Rare)
+		{100,639}, -- Chestnut (Very Rare)
+    },
+    [104] = { -- Jugner Forest
+        {1000,693}, -- Walnut Log (Common)
+		{1000,695}, -- Willow Log (Common)
+		{1000,696}, -- Yew Log (Common)
+        {300,688}, -- Arrowood Log (Uncommon)
+		{300,698}, -- Ash Log (Uncommon)
+		{200,4505}, --Acorn (Rare)
+		{200,923}, -- Dryad Root (Rare)
+		{100,699}, -- Oak Log (Very Rare)
+	},
+    [118] = { -- Buburimu Peninsula
+		{1000,689}, -- Lauan Log (Common)
+        {1000,688}, -- Arrowood Log (Common)
+		{1000,4445}, -- Yagudo Cherry (Common)
+		{300,4503}, -- Buburimu Grape (Uncommon)
+		{200,923}, -- Dryad Root (Rare)
+		{200,574}, -- Fruit Seeds (Rare)
+		{200,697}, -- Holly Log (Rare)
+		{100,702}, -- Ebony Log (Very Rare)
+		{100,700}, -- Mahogony Log (Very Rare)
+		{100,701}, -- Rosewood Log (Very Rare)
+	},
+    [123] = { -- Yuhtunga Jungle
+	    {1000,688}, -- Arrowood Log (Common)
+		{1000,721}, -- Rattan Lumber (Common)
+		{300,689}, -- Lauan Log (Uncommon)	
+		{200,731}, -- Aquilaria Log (Rare)
+		{200,912}, -- Beehive Chip (Rare)	
+		{200,697}, -- Holly Log (Rare)	
+		{200,940}, -- Revival Tree Root (Rare)	
+		{100,702}, -- Ebony Log (Very Rare)	
+		{100,701}, -- Rosewood Log (Very Rare)	
+		{100,1237}, -- Tree Cuttings (Very Rare)	
+		{100,5662}, -- Dragon Fruit (Very Rare)	
+	},	
+    [124] = { -- Yhoator Jungle
+	    {1000,688}, -- Arrowood Log (Common)
+		{1000,721}, -- Rattan Lumber (Common)
+		{1000,689}, -- Lauan Log (Common)
+		{300,912}, -- Beehive Chip (Uncommon)				
+		{200,923}, -- Dryad Root (Rare)
+		{100,731}, -- Aquilaria Log (Very Rare)	
+		{100,702}, -- Ebony Log (Very Rare)
+		{100,700}, -- Mahogony Log (Very Rare)
+		{100,940}, -- Revival Tree Root (Very Rare)	
+		{100,1237}, -- Tree Cuttings (Very Rare)	
+	},
+    [140] = { -- Ghelsba Outpost
+        {1000,688}, -- Arrowood Log (Common)
+		{1000,698}, -- Ash Log (Common)
+		{1000,691}, -- Maple Log (Common)
+		{200,695}, -- Willow Log (Rare)	
+		{200,690}, -- Elm Log (Rare)	
+		{200,697}, -- Holly Log (Rare)
+	},
+}
 
-function startLogging(player,zone,npc,trade,csid)
+------------------------------------------------------------------------------------------
+--  Logging 2.0 (ACRE - Update 13/05/2016)
+--  Note: NPC ID's per zone
+-- 	Example: Zone {npcid,npcid,npcid,...}
+------------------------------------------------------------------------------------------
+
+local loggingpoints = {
+	[2] = {16785769,16785770,16785771,16785772}, -- Carpenter's Landing
+	[24] = {16875879,16875880,16875881,16875882,16875883,16875884}, -- Lufaise Meadows
+	[25] = {16879968,16879969,16879970,16879971,16879972,16879973}, -- Misareaux Coast
+	[101] = {17191526,17191527,17191528,17191529,17191530,17191531}, -- East Ronfaure
+	[104] = {17203860,17203861,17203862,17203863,17203864,17203865}, -- Jugner Forest
+	[118] = {17261171,17261172,17261173,17261174,17261175,17261176}, -- Buburimu Peninsula
+	[123] = {17281626,17281627,17281628,17281629,17281630,17281631}, -- Yuhtunga Jungle
+	[124] = {17285671,17285672,17285673,17285674,17285675,17285676}, -- Yhoator Jungle
+	[140] = {17350970,17350971,17350972,17350973} -- Ghelsba Outpost
+}
+
+local coordinates = {
+	[2] = {
+		{198.306,-6.75,-562.259},   -- Zone: Carpenters_Landing
+		{118.541,-6.685,-405.259},   -- Zone: Carpenters_Landing
+		{-117.587,-6.529,-482.574},   -- Zone: Carpenters_Landing
+		{-174.078,-6.254,-442.14},   -- Zone: Carpenters_Landing
+		{-169.623,-14.464,-512.819},   -- Zone: Carpenters_Landing
+		{-204.153,-6.761,-119.146},   -- Zone: Carpenters_Landing
+		{-319.104,-6.75,-82.24},   -- Zone: Carpenters_Landing
+		{-242.51,-5.996,-22.45},   -- Zone: Carpenters_Landing
+		{-189.412,-5.335,92.033}   -- Zone: Carpenters_Landing
+	},
+	[124] = {
+		{-6.343,-3.515,-87.118},   -- Zone: Yhoator_Jungle
+		{-22.81,6.09,-90.663},   -- Zone: Yhoator_Jungle
+		{-5.682,-4.05,-117.021},   -- Zone: Yhoator_Jungle
+		{-455.557,2.105,-131.032},   -- Zone: Yhoator_Jungle
+		{-463.504,3.888,-177.802},   -- Zone: Yhoator_Jungle
+		{-463.159,0.188,-214.968},   -- Zone: Yhoator_Jungle
+		{-461.987,-0.611,-162.186},   -- Zone: Yhoator_Jungle
+		{-384.149,1.855,-16.146},   -- Zone: Yhoator_Jungle
+		{-377.64,-0.553,37.098},   -- Zone: Yhoator_Jungle
+		{-307.967,0.953,16.002},   -- Zone: Yhoator_Jungle
+		{-278.469,-0.642,58.416},   -- Zone: Yhoator_Jungle
+		{-167.848,-0.053,21.493},   -- Zone: Yhoator_Jungle
+		{-133.895,-0.587,12.853},   -- Zone: Yhoator_Jungle
+		{-91.976,-0.842,23.711},   -- Zone: Yhoator_Jungle
+		{-66.181,-0.853,10.011},   -- Zone: Yhoator_Jungle
+		{-28.515,-3.173,-139.615}   -- Zone: Yhoator_Jungle
+	},
+	[123] = {
+		{-112.696,-3.285,-88.752},   -- Zone: Yuhtunga_Jungle
+		{-82.615,-0.428,-180.782},   -- Zone: Yuhtunga_Jungle
+		{-205.044,-0.299,-220.019},   -- Zone: Yuhtunga_Jungle
+		{-177.925,-0.507,-196.699},   -- Zone: Yuhtunga_Jungle
+		{-176.488,3.871,-182.233},   -- Zone: Yuhtunga_Jungle
+		{-218.565,2.011,-141.177},   -- Zone: Yuhtunga_Jungle
+		{-35.476,-0.523,-422.084},   -- Zone: Yuhtunga_Jungle
+		{-36.274,-0.664,-463.45},   -- Zone: Yuhtunga_Jungle
+		{21.844,4.262,-495.023},   -- Zone: Yuhtunga_Jungle
+		{-311.391,-1.249,-21.18},   -- Zone: Yuhtunga_Jungle
+		{-305.718,8.524,0.09},   -- Zone: Yuhtunga_Jungle
+		{-271.237,-0.868,-22.414},  -- Zone: Yuhtunga_Jungle
+		{-291.983,-5.301,0.529},   -- Zone: Yuhtunga_Jungle
+		{-541.831,-0.507,162.693},   -- Zone: Yuhtunga_Jungle
+		{-506.284,-0.349,186.075},   -- Zone: Yuhtunga_Jungle
+		{-497.049,-0.25,229.809}   -- Zone: Yuhtunga_Jungle
+	},
+	[118] = {
+		{-65.648,-0.473,-170.359},   -- Zone: Buburimu_Peninsula
+		{-84.522,-1.02,-176.713},   -- Zone: Buburimu_Peninsula
+		{56.732,-0.093,-207.318},   -- Zone: Buburimu_Peninsula
+		{17.573,-1.575,-293.985},   -- Zone: Buburimu_Peninsula
+		{98.027,-0.689,-148.377},   -- Zone: Buburimu_Peninsula
+		{392.699,-0.378,-140.751},   -- Zone: Buburimu_Peninsula
+		{434.036,-0.344,-191.165},   -- Zone: Buburimu_Peninsula
+		{434.408,-0.628,-210.972},   -- Zone: Buburimu_Peninsula
+		{514.326,-0.469,-212.832},   -- Zone: Buburimu_Peninsula
+		{532.471,-0.504,-267.012},   -- Zone: Buburimu_Peninsula
+		{528.582,-0.762,-270.122},   -- Zone: Buburimu_Peninsula
+		{502.713,-0.651,-16.592},   -- Zone: Buburimu_Peninsula
+		{460.408,-0.07,-7.679},  -- Zone: Buburimu_Peninsula
+		{433.863,-1.538,9.799},   -- Zone: Buburimu_Peninsula
+		{306.851,-0.435,90.114},   -- Zone: Buburimu_Peninsula
+		{312.321,-1.14,42.644},   -- Zone: Buburimu_Peninsula
+		{339.651,-0.015,47.341},   -- Zone: Buburimu_Peninsula
+		{312.783,-0.456,186.088},   -- Zone: Buburimu_Peninsula
+		{315.316,-0.78,194.892},   -- Zone: Buburimu_Peninsula
+		{413.152,-0.345,202.133},   -- Zone: Buburimu_Peninsula
+		{410.538,-0.798,207.165},   -- Zone: Buburimu_Peninsula
+		{387.256,-1.08,241.808},   -- Zone: Buburimu_Peninsula
+		{394.261,-1.133,246.33},   -- Zone: Buburimu_Peninsula
+		{395.538,-0.38,291.989},   -- Zone: Buburimu_Peninsula
+		{398.247,-0.717,310.669},   -- Zone: Buburimu_Peninsula
+		{388.167,-0.814,317.613},   -- Zone: Buburimu_Peninsula
+		{388.167,-0.814,317.613}   -- Zone: Buburimu_Peninsula
+	},
+	[104] = {
+		{217.654,-0.2,-282.637},   -- Zone: Jugner_Forest
+		{262.127,-7.956,-409.445},   -- Zone: Jugner_Forest
+		{302.444,-15.526,-467.624},   -- Zone: Jugner_Forest
+		{329.294,-16.624,-431.135},   -- Zone: Jugner_Forest
+		{317.242,-16.75,-522.484},   -- Zone: Jugner_Forest
+		{245.39,-9.174,-490.334},   -- Zone: Jugner_Forest
+		{203.14,-9.953,-445.687},   -- Zone: Jugner_Forest
+		{208.67,-9.295,-417.608},   -- Zone: Jugner_Forest
+		{-298.288,-0.093,-204.743},   -- Zone: Jugner_Forest
+		{-280.729,-8.893,-162.306},   -- Zone: Jugner_Forest
+		{-311.295,-1.057,-133.244},   -- Zone: Jugner_Forest
+		{-253.851,-1.067,-127.375},   -- Zone: Jugner_Forest
+		{-341.789,6.382,151.25},   -- Zone: Jugner_Forest
+		{-360.881,6.258,169.632},   -- Zone: Jugner_Forest
+		{-363.178,-0.75,278.731},   -- Zone: Jugner_Forest
+		{-425.214,4.107,272.399},   -- Zone: Jugner_Forest
+		{188.974,-0.552,283.586},   -- Zone: Jugner_Forest
+		{165.421,-0.449,289.353},   -- Zone: Jugner_Forest
+		{181.363,-2.189,304.429},   -- Zone: Jugner_Forest
+		{167.117,0.056,341.545},   -- Zone: Jugner_Forest
+		{241.091,-0.75,362.195},   -- Zone: Jugner_Forest
+		{276.728,-1.194,353.28},   -- Zone: Jugner_Forest
+		{248.974,-0.546,286.756}   -- Zone: Jugner_Forest
+	},
+	[101] = {
+		{477.352,-10.75,-439.657},   -- Zone: Ronfaure_East
+		{501.474,-10.996,-402.469},   -- Zone: Ronfaure_East
+		{461.719,-20.691,-290.689},   -- Zone: Ronfaure_East
+		{383.562,-20.462,-326.598},   -- Zone: Ronfaure_East
+		{474.627,-18.976,-329.575},   -- Zone: Ronfaure_East
+		{505.626,-20.595,-242.151},   -- Zone: Ronfaure_East
+		{509.759,-21.227,-217.52 },  -- Zone: Ronfaure_East
+		{457.045,-17.019,-184.982},   -- Zone: Ronfaure_East
+		{389.334,-21.101,-174.189},   -- Zone: Ronfaure_East
+		{361.317,-20.291,-192.276},   -- Zone: Ronfaure_East
+		{307.064,-31.977,-66.766},   -- Zone: Ronfaure_East
+		{409.825,-29.613,-54.721},   -- Zone: Ronfaure_East
+		{218.356,-40.765,29.408},   -- Zone: Ronfaure_East
+		{285.015,-40.426,29.147},   -- Zone: Ronfaure_East
+		{392.198,-40.128,-2.015},   -- Zone: Ronfaure_East
+		{427.166,-32.294,-24.21},   -- Zone: Ronfaure_East
+		{405.994,-40.507,42.351},   -- Zone: Ronfaure_East
+		{346.166,-47.568,78.103},   -- Zone: Ronfaure_East
+		{334.922,-47.102,178.825},   -- Zone: Ronfaure_East
+		{376.858,-48.857,149.818},   -- Zone: Ronfaure_East
+		{453.355,-47.113,145.003},   -- Zone: Ronfaure_East
+		{531.192,-41.163,61.975},   -- Zone: Ronfaure_East
+		{609.596,-55.025,190.296}   -- Zone: Ronfaure_East
+	},
+	[140] = {
+		{2.417,-0.894,35.151},   -- Zone: Ghelsba_Outpost
+		{-12.554,-1.445,23.943},   -- Zone: Ghelsba_Outpost
+		{-17.969,-1.629,17.687},   -- Zone: Ghelsba_Outpost
+		{-57.75,-0.75,36.797},   -- Zone: Ghelsba_Outpost
+		{-51.87,-0.75,32.618},  -- Zone: Ghelsba_Outpost
+		{-16.936,-1.354,59.533},   -- Zone: Ghelsba_Outpost
+		{-11.901,-0.75,77.116},   -- Zone: Ghelsba_Outpost
+		{-8.232,-1.168,67.939},   -- Zone: Ghelsba_Outpost
+		{12.273,-1.229,89.419},   -- Zone: Ghelsba_Outpost
+		{20.249,-1.238,75.525},   -- Zone: Ghelsba_Outpost
+		{7.887,-1.283,71.212},   -- Zone: Ghelsba_Outpost
+		{2.363,-1.633,13.035},   -- Zone: Ghelsba_Outpost
+		{7.623,-1.146,6.862},   -- Zone: Ghelsba_Outpost
+		{16.598,-1.214,-4.664},   -- Zone: Ghelsba_Outpost
+		{-2.549,-1.327,-21.346}   -- Zone: Ghelsba_Outpost
+	}
+}
+
+------------------------------------------------------------------------------------------
+--  Logging 2.0 (ACRE - Update 13/05/2016)
+--  Note: Functions
+------------------------------------------------------------------------------------------
+
+
+function startLogging(player, zone, npc, trade, cutsceneId)
+
+    -- Check that the user has a pickaxe, and has traded a single one.
     if (trade:hasItemQty(1021,1) and trade:getItemCount() == 1) then
-        local broke = hatchetBreak(player,trade);
+        local broken = hatchetBreak(player,trade);
         local item = getLoggingItem(player,zone);
-
-        if (player:getFreeSlotsCount() == 0) then
-            full = 1;
-        else
-            full = 0;
+        local full = (player:getFreeSlotsCount() == 0 and 1 or 0);
+        local hitCount = npc:getLocalVar("HIT_COUNT") - 1;
+        --printf("Mining: full: %s, item: %s, hitCount: %s, id: %s", full, item, hitCount, npc);
+        if (item ~= 0) then
+            if (hitCount == -1) then -- hits will only ever be -1 after a server reset.
+                hitCount = math.random(4,5);
+            end
+            if (hitCount == 0) then
+                moveLoggingPoint(player,npc,zone);
+            end;
         end
+        --printf("Mining: setting hitcount to %s, id: %s",hitCount,npc);
 
-        player:startEvent(csid,item,broke,full);
+        -- Mining event
+        player:startEvent(cutsceneId,item,broken,full);
 
+        -- If we are full, or there was no item found, we don't use up a "hit", so don't log the hit
+        -- or attempt to reward the item.
         if (item ~= 0 and full == 0) then
+            -- Update the hit count on the mining point.
+            npc:setLocalVar("HIT_COUNT",hitCount);
             player:addItem(item);
-            SetServerVariable("[LOGGING]Zone "..zone,GetServerVariable("[LOGGING]Zone "..zone) + 1);
-        end
+        end;
+    end;
 
-        if (GetServerVariable("[LOGGING]Zone "..zone) >= 3) then
-            getNewLoggingPositionNPC(player,npc,zone);
-        end
-    else
-        player:messageSpecial(LOGGING_IS_POSSIBLE_HERE,1021);
-    end
-end
+end;
 
 -----------------------------------
--- Determine if Hatchet breaks
+--  Logging 2.0 (ACRE - Update 13/05/2016)
+-- 	Determine if Hatchet breaks
 -----------------------------------
 
 function hatchetBreak(player,trade)
-    local broke = 0;
-    local hatchetbreak = math.random();
-
-    hatchetbreak = hatchetbreak + (player:getMod(MOD_LOGGING_RESULT) / 1000);
-
-    if (hatchetbreak < LOGGING_BREAK_CHANCE) then
-        broke = 1;
+    local broken = 0;
+    if (math.random(0,100) <= LOGGING_BREAK_CHANCE) then
+        broken = 1;
         player:tradeComplete();
-    end
+    end;
+    return broken;
+end;
+-------------------------------------------------
+-- Determine the obtained item.
+-------------------------------------------------
 
-    return broke;
+function getLoggingItem(player,zone) 
+    -- declare the winning item!
+    local item = 0;
+    if (math.random(0,100) >= LOGGING_RATE) then
+        -- no item
+        return item;
+    end;
 
-end
+    -- Get the drop array from the master drops array.
+    local drops = extracted[zone];
 
------------------------------------
--- Get an item
------------------------------------
+    -- Get the total of all drop weights
+    -- {rate,item}
+    local total = 0;
+    for i=1,#drops do
+        total = total+drops[i][1] -- [1] = rate, [2] = item
+    end;
 
-function getLoggingItem(player,zone)
-    local Rate = math.random();
+    --printf("Total: %s",total);
 
-    for zon = 1, table.getn(drop), 2 do
-        if (drop[zon] == zone) then
-            for itemlist = 1, table.getn(drop[zon + 1]), 2 do
-                if (Rate <= drop[zon + 1][itemlist + 1]) then
-                    item = drop[zon + 1][itemlist];
-                    break;
-                end
-            end
+    -- Get a random number that will determine the drop from the array.
+    local tickerStop = math.random(1,total);
+
+    local countPosition = 0;
+    -- find out the winning item from the drops array.
+    for i=1,#drops do
+        countPosition = countPosition+drops[i][1]; -- [1] = rate, [2] = item
+        if (countPosition >= tickerStop) then 
+            item = drops[i][2]; -- [1] = rate, [2] = item
             break;
-        end
-    end
+        end;
+    end;
 
-    --------------------
-    -- Determine chance of no item mined
-    -- Default rate is 50%
-    --------------------
-
-    Rate = math.random();
-
-    if (Rate <= (1 - LOGGING_RATE)) then
-        item = 0;
-    end
+    --printf("Item: %s",item);
 
     return item;
-end
+end;
 
------------------------------------------
--- After 3 items he change the position
------------------------------------------
+-------------------------------------------------
+-- Moves mining point.
+-------------------------------------------------
 
-function getNewLoggingPositionNPC(player,npc,zone)
-    local newnpcid = npc:getID();
+function moveLoggingPoint(player,npc,zone)
 
-    for u = 1, table.getn(npcid), 2 do
-        if (npcid[u] == zone) then
-            nbNPC = table.getn(npcid[u + 1]);
-            while newnpcid == npc:getID() do
-                newnpcid = math.random(1,nbNPC);
-                newnpcid = npcid[u + 1][newnpcid];
+    local positions = utils.shuffle(coordinates[zone]);
+    local points = loggingpoints[zone];
+    local newIndex = -1;
+
+    if (positions ~= nil) then
+        -- Generate a list of used indexes for all mining points in this zone.
+        for i,p in ipairs(points) do -- loop through all mining points
+            for c, v in ipairs(positions) do -- find index of this specific point
+                local currentnpc = GetNPCByID(p)
+                if (math.floor(v[1]) == math.floor(currentnpc:getXPos()) and
+                    math.floor(v[2]) == math.floor(currentnpc:getYPos()) and
+                    math.floor(v[3]) == math.floor(currentnpc:getZPos())) then
+                        table.remove(positions,c);
+                end
             end
-            break;
         end
+        newIndex = math.random(1,#positions)
     end
 
-    npc:setStatus(2);
-    GetNPCByID(newnpcid):setStatus(0);
-    SetServerVariable("[LOGGING]Zone "..zone,0);
-end
+    if (newIndex == -1) then
+        npc:setLocalVar("HIT_COUNT",math.random(4,6));
+        npc:hideNPC(300);
+        --printf("Couldn't find this mining points current index! Hiding for 5 minutes");
+    else
+        local position = positions[newIndex];
+        npc:setLocalVar("HIT_COUNT",math.random(4,6));
+        npc:hideNPC(120);
+        npc:queue(3000,doMove(npc, position[1], position[2], position[3]));
+    end
+end;
+
+-------------------------------------------------
+-- Perform node move after queue timer depletes.
+-------------------------------------------------
+
+function doMove(npc,x,y,z,zone)
+    return function(entity)
+        entity:setPos(x, y, z, 0);
+    end;
+end;

@@ -4209,7 +4209,7 @@ namespace charutils
 			NormLevel = (level - MinLevel) / (double)LevelRange;
 			ScaleFactor += ceil(0.12f * log(NormLevel) * 100) / 100.0f; // 0.19
 			scaleBonus = int((exp * ScaleFactor) - exp);
-			ShowDebug(CL_CYAN"EXP Bonus: %s (Lv.%u) got a scale bonus of %u EXP (factor: %f - base exp: %u)\n" CL_RESET, PChar->GetName(), level, scaleBonus, ScaleFactor, exp);
+			//ShowDebug(CL_CYAN"EXP Bonus: %s (Lv.%u) got a scale bonus of %u EXP (factor: %f - base exp: %u)\n" CL_RESET, PChar->GetName(), level, scaleBonus, ScaleFactor, exp);
 		}
 
         bonus += exp * (PChar->getMod(MOD_EXP_BONUS) / 100.0f);
