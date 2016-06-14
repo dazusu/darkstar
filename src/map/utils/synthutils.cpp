@@ -508,7 +508,7 @@ int32 doSynthSkillUp(CCharEntity* PChar)
 		}
 
 		uint8  skillRank = PChar->RealSkills.rank[skillID];
-		uint16 maxSkill  = (skillRank+1)*100;
+		uint16 maxSkill  = (skillRank+1)*100; // (skillRank+1)*100; <-- fixes server thinking chr is 1 level above where they are...
 
 		int32  charSkill = PChar->RealSkills.skill[skillID];
 		int32  basDiff   = PChar->CraftContainer->getQuantity(skillID-40) - (charSkill/10 + PChar->getMod(ModID)); //the 5 lvl difference rule for breaks does consider the effects of image support/gear
@@ -527,15 +527,16 @@ int32 doSynthSkillUp(CCharEntity* PChar)
 			skillUpChance = skillUpChance/(1 + (PChar->CraftContainer->getQuantity(0) == SYNTHESIS_FAIL));		// результат синтеза хранится в quantity нулевой ячейки
 
             double random = dsprand::GetRandomNumber(1.);
-			#ifdef _DSP_SYNTH_DEBUG_MESSAGES_
-			ShowDebug(CL_CYAN"Skill up chance: %g  Random: %g\n" CL_RESET, skillUpChance, random);
-			#endif
+			//#ifdef _DSP_SYNTH_DEBUG_MESSAGES_
+			//ShowDebug(CL_CYAN"Skill up chance: %g  Random: %g\n" CL_RESET, skillUpChance, random);
+			//#endif
 
 			// increase skillup chance below level 60 - edgeffxi mod
 			if (charSkill < 6000) { 
-				ShowDebug(CL_CYAN"BONUS!  Skillup: %g, BonusSkillup: %g,  Random: %g\n" CL_RESET, skillUpChance, skillUpChance*3.50, random);
-				skillUpChance = skillUpChance * 3.50;
+				random = random / 1.50;
 			}
+
+			ShowDebug(CL_CYAN"Skill up chance: %g  Random: %g\n" CL_RESET, skillUpChance, random);
 
 			if (random < skillUpChance)
 			{
